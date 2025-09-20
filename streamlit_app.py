@@ -43,11 +43,130 @@ def _poem_lines(poem: str) -> list[str]:
 
 def main() -> None:
     st.set_page_config(page_title="LLM Poem Generator", page_icon="📝")
-    st.title("LLM Haiku Generator")
-    st.write(
-        "Generate an English haiku (5-7-5) that mentions pipes using OpenAI's official Python client."
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap');
+
+        .stApp {
+            background: radial-gradient(circle at top left, #fdf2ff 0%, #f6f9ff 40%, #dbeafe 100%);
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+        }
+
+        .stApp header { visibility: hidden; }
+
+        .block-container {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+            max-width: 760px;
+        }
+
+        .hero-text {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 0.65rem;
+            color: #0f172a;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #334155;
+        }
+
+        .hero-text .accent {
+            color: #6366f1;
+            font-weight: 600;
+        }
+
+        div[data-testid="stForm"] {
+            background: rgba(255, 255, 255, 0.78);
+            border-radius: 26px;
+            padding: 2.5rem 2.75rem;
+            box-shadow: 0 35px 60px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(18px);
+        }
+
+        div[data-testid="stForm"] label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1f2937;
+            margin-bottom: 0.4rem;
+        }
+
+        div[data-testid="stTextInput"] input {
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.8rem 1rem;
+            box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.05);
+            font-size: 1rem;
+        }
+
+        div[data-testid="stFormSubmitButton"] button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 0.85rem 2.6rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            box-shadow: 0 18px 35px rgba(99, 102, 241, 0.35);
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        div[data-testid="stFormSubmitButton"] button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 40px rgba(99, 102, 241, 0.45);
+        }
+
+        div[data-testid="stFormSubmitButton"] button:focus {
+            outline: none;
+        }
+
+        .haiku-display {
+            margin-top: 2.8rem;
+            padding: 2.2rem;
+            border-radius: 26px;
+            background: rgba(15, 23, 42, 0.8);
+            color: #f8fafc;
+            box-shadow: 0 40px 70px rgba(15, 23, 42, 0.35);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            backdrop-filter: blur(14px);
+        }
+
+        .haiku-display p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.85rem;
+            line-height: 1.35;
+            letter-spacing: 0.02em;
+            margin: 0.35rem 0;
+        }
+
+        .stAlert {
+            border-radius: 18px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
-    st.caption("Type a subject and press Enter to generate the haiku.")
+
+    st.markdown(
+        """
+        <div class="hero-text">
+            <h1>LLM Haiku Generator</h1>
+            <p>Summon bespoke 5-7-5 verses that whisper about <span class="accent">pipes</span>.</p>
+            <p>Type a subject, press Enter, and enjoy a refined haiku in seconds.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     default_subject = "quiet mornings"
     if "subject_input" not in st.session_state:
@@ -65,11 +184,21 @@ def main() -> None:
     components.html(
         """
         <script>
-        const doc = window.parent.document;
-        const input = doc.querySelector('input[data-testid="stTextInput"][aria-label="Subject"]');
-        if (input) {
-            input.focus();
-        }
+        const focusSubject = () => {
+            const doc = window.parent.document;
+            const inputs = doc.querySelectorAll('input[type="text"]');
+            for (const input of inputs) {
+                const label = (input.getAttribute('aria-label') || '').trim().toLowerCase();
+                if (label === 'subject') {
+                    input.focus();
+                    input.select();
+                    return;
+                }
+            }
+        };
+
+        // Allow Streamlit DOM updates to settle before focusing.
+        window.setTimeout(focusSubject, 100);
         </script>
         """,
         height=0,
@@ -94,10 +223,12 @@ def main() -> None:
     poem_to_show = st.session_state.get("generated_poem")
     if poem_to_show:
         lines_markup = "".join(
-            f"<p style='font-size:1.6rem; margin:0.25rem 0;'>{html.escape(line)}</p>"
-            for line in _poem_lines(poem_to_show)
+            f"<p>{html.escape(line)}</p>" for line in _poem_lines(poem_to_show)
         )
-        st.markdown(f"<div style='margin-top:1rem;'>{lines_markup}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='haiku-display'>{lines_markup}</div>",
+            unsafe_allow_html=True,
+        )
 
 
 if __name__ == "__main__":
