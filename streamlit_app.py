@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import os
+import html
 
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -32,20 +34,50 @@ def generate_poem(client: OpenAI, subject: str) -> str:
     return response.output_text
 
 
+def _poem_lines(poem: str) -> list[str]:
+    """Return poem segments split on pipes with whitespace trimmed."""
+    lines = [segment.strip() for segment in poem.split("|")]
+    cleaned_lines = [line for line in lines if line]
+    return cleaned_lines or [poem]
+
+
 def main() -> None:
     st.set_page_config(page_title="LLM Poem Generator", page_icon="📝")
     st.title("LLM Haiku Generator")
     st.write(
         "Generate an English haiku (5-7-5) that mentions pipes using OpenAI's official Python client."
     )
+    st.caption("Type a subject and press Enter to generate the haiku.")
 
     default_subject = "quiet mornings"
-    subject = st.text_input(
-        "Subject", default_subject, help="What should the poem be about?"
-    ).strip()
+    if "subject_input" not in st.session_state:
+        st.session_state["subject_input"] = default_subject
 
-    if st.button("Generate Haiku"):
+    with st.form("haiku_form", clear_on_submit=False):
+        subject = st.text_input(
+            "Subject",
+            help="What should the poem be about?",
+            key="subject_input",
+        ).strip()
+        submitted = st.form_submit_button("Generate Haiku")
+
+    # Focus the subject input each run so users can type immediately.
+    components.html(
+        """
+        <script>
+        const doc = window.parent.document;
+        const input = doc.querySelector('input[data-testid="stTextInput"][aria-label="Subject"]');
+        if (input) {
+            input.focus();
+        }
+        </script>
+        """,
+        height=0,
+    )
+
+    if submitted:
         if not subject:
+            st.session_state.pop("generated_poem", None)
             st.warning("Please enter a subject for the poem.")
             return
 
@@ -57,8 +89,15 @@ def main() -> None:
                 st.error(f"Failed to generate poem: {exc}")
                 return
 
-        st.subheader("Generated Haiku")
-        st.code(poem, language="markdown")
+        st.session_state["generated_poem"] = poem
+
+    poem_to_show = st.session_state.get("generated_poem")
+    if poem_to_show:
+        lines_markup = "".join(
+            f"<p style='font-size:1.6rem; margin:0.25rem 0;'>{html.escape(line)}</p>"
+            for line in _poem_lines(poem_to_show)
+        )
+        st.markdown(f"<div style='margin-top:1rem;'>{lines_markup}</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
