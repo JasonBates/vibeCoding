@@ -5,7 +5,7 @@ A simple Python project that generates Japanese-style poems using OpenAI's GPT-4
 ## Features
 
 - Interactive prompt for poem subject
-- Generates 5-line Japanese-style poems
+- Generates English haiku (5-7-5) that mention pipes
 - Uses OpenAI's official Python client
 - Environment variable configuration
 
@@ -47,7 +47,7 @@ A simple Python project that generates Japanese-style poems using OpenAI's GPT-4
 python simple_llm_request.py
 ```
 
-Enter a subject when prompted, and the script will generate a 5-line Japanese-style poem about that subject.
+Enter a subject when prompted, and the script will generate an English haiku about that subject that includes the word "pipes" and uses `|` separators between lines.
 
 ### Streamlit UI
 
@@ -57,7 +57,7 @@ Start the web UI and open the printed URL:
 streamlit run streamlit_app.py
 ```
 
-Enter a subject in the text box and click **Generate Poem** to view the result inline.
+Enter a subject in the text box and click **Generate Poem** to view the pipe-separated haiku inline.
 
 ## Requirements
 
@@ -70,13 +70,9 @@ Enter a subject in the text box and click **Generate Poem** to view the result i
 ## Example
 
 ```
-Enter a subject for the poem: cherry blossoms
+Enter a subject for the poem: morning fog
 
-Generated poem:
+Generated haiku (with pipe separators):
 
-Pink petals dance on spring breeze,
-Soft whispers in morning light,
-Fleeting beauty graces the trees,
-Nature's canvas pure and bright,
-Cherry dreams bloom in the night.
+Morning pipes whisper | Silver mist wraps rusted rails | Dawn hums through the steel
 ```

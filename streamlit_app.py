@@ -24,8 +24,9 @@ def generate_poem(client: OpenAI, subject: str) -> str:
     response = client.responses.create(
         model="gpt-4.1-mini",
         input=(
-            "Write a five-line Japanese-style poem about the following subject: "
-            f"{subject}. Keep it vivid, gentle, and evocative."
+            "Write an English haiku (three lines, 5-7-5 syllable pattern) about the following subject: "
+            f"{subject}. Use the word 'pipes' at least once. "
+            "Return the haiku on a single line with each line separated by ' | '."
         ),
     )
     return response.output_text
@@ -33,9 +34,9 @@ def generate_poem(client: OpenAI, subject: str) -> str:
 
 def main() -> None:
     st.set_page_config(page_title="LLM Poem Generator", page_icon="📝")
-    st.title("LLM Poem Generator")
+    st.title("LLM Haiku Generator")
     st.write(
-        "Generate a five-line Japanese-style poem using OpenAI's official Python client."
+        "Generate an English haiku (5-7-5) that mentions pipes using OpenAI's official Python client."
     )
 
     default_subject = "quiet mornings"
@@ -43,7 +44,7 @@ def main() -> None:
         "Subject", default_subject, help="What should the poem be about?"
     ).strip()
 
-    if st.button("Generate Poem"):
+    if st.button("Generate Haiku"):
         if not subject:
             st.warning("Please enter a subject for the poem.")
             return
@@ -56,7 +57,7 @@ def main() -> None:
                 st.error(f"Failed to generate poem: {exc}")
                 return
 
-        st.subheader("Generated Poem")
+        st.subheader("Generated Haiku")
         st.code(poem, language="markdown")
 
 
