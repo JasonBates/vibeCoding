@@ -1,6 +1,6 @@
 # Simple LLM Request
 
-A simple Python script that generates Japanese-style poems using OpenAI's GPT-4o-mini model.
+A simple Python project that generates Japanese-style poems using OpenAI's GPT-4.1-mini model.
 
 ## Features
 
@@ -25,7 +25,7 @@ A simple Python script that generates Japanese-style poems using OpenAI's GPT-4o
 
 3. **Install dependencies:**
    ```bash
-   pip install openai python-dotenv
+   pip install -r requirements.txt
    ```
 
 4. **Set up environment variables:**
@@ -41,19 +41,31 @@ A simple Python script that generates Japanese-style poems using OpenAI's GPT-4o
 
 ## Usage
 
-Run the script:
+### Command line script
+
 ```bash
 python simple_llm_request.py
 ```
 
 Enter a subject when prompted, and the script will generate a 5-line Japanese-style poem about that subject.
 
+### Streamlit UI
+
+Start the web UI and open the printed URL:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Enter a subject in the text box and click **Generate Poem** to view the result inline.
+
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - OpenAI API key
 - openai
 - python-dotenv
+- streamlit
 
 ## Example
 
