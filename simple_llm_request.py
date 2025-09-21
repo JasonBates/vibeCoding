@@ -23,7 +23,8 @@ def main() -> None:
             "OPENAI_API_KEY not set; add it to .env or export it before running this script."
         )
 
-    subject = input("Enter a subject for the haiku: ").strip() or "quiet mornings"
+    subject = input(
+        "Enter a subject for the haiku: ").strip() or "quiet mornings"
     prompt = (
         "Write an English haiku (three lines, 5-7-5 syllable pattern) about the following subject: "
         f"{subject}. "
