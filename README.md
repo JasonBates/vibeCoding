@@ -1,13 +1,15 @@
-# Simple LLM Request
+# VibeCoding - LLM Haiku Generator
 
-A simple Python project that generates Japanese-style poems using OpenAI's GPT-4.1-mini model.
+A beautiful Python application that generates traditional English haikus using OpenAI's GPT-4.1-mini model. Features both a command-line interface and a modern Streamlit web UI with elegant styling.
 
 ## Features
 
-- Interactive prompt for poem subject
-- Generates English haiku (5-7-5) that mention pipes
-- Uses OpenAI's official Python client
-- Environment variable configuration
+- **🎨 Beautiful Streamlit UI**: Modern, responsive web interface with gradient backgrounds and custom typography
+- **📝 Traditional Haiku Generation**: Creates authentic 5-7-5 syllable English haikus
+- **⚡ Real-time Generation**: Instant poem creation with loading animations
+- **🖥️ Dual Interface**: Both command-line and web-based interfaces
+- **🔧 Easy Setup**: Simple configuration with environment variables
+- **📱 Responsive Design**: Works perfectly on desktop and mobile devices
 
 ## Setup
 
@@ -41,38 +43,106 @@ A simple Python project that generates Japanese-style poems using OpenAI's GPT-4
 
 ## Usage
 
-### Command line script
+### 🌐 Streamlit Web UI (Recommended)
+
+Start the beautiful web interface:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Launch the app
+streamlit run streamlit_app.py
+```
+
+Then open your browser to `http://localhost:8501` and enjoy the modern interface!
+
+**Features:**
+- Elegant gradient background with glassmorphism design
+- Auto-focus input field for immediate typing
+- Real-time poem generation with loading animations
+- Beautiful typography with custom fonts
+- Responsive design that works on all devices
+
+### 💻 Command Line Interface
+
+For a quick command-line experience:
 
 ```bash
 python simple_llm_request.py
 ```
 
-Enter a subject when prompted, and the script will generate an English haiku about that subject that includes the word "pipes" and uses `|` separators between lines.
-
-### Streamlit UI
-
-Start the web UI and open the printed URL:
-
-```bash
-streamlit run streamlit_app.py
-```
-
-Enter a subject in the text box and click **Generate Poem** to view the pipe-separated haiku inline.
+Enter a subject when prompted, and the script will generate a traditional English haiku about that subject.
 
 ## Requirements
 
 - Python 3.8+
 - OpenAI API key
-- openai
-- python-dotenv
-- streamlit
+- openai>=1.0,<2.0
+- python-dotenv>=1.0,<2.0
+- streamlit>=1.36,<2.0
 
-## Example
+## Examples
 
+### Web UI Example
+Visit `http://localhost:8501` and enter a subject like "coffee morning":
+
+**Input:** `coffee morning`
+
+**Output:**
 ```
-Enter a subject for the poem: morning fog
-
-Generated haiku (with pipe separators):
-
-Morning pipes whisper | Silver mist wraps rusted rails | Dawn hums through the steel
+Silent mind explored
+Bound in trials of unknown
+Truth in quiet waits
 ```
+
+### Command Line Example
+```bash
+$ python simple_llm_request.py
+Enter a subject for the poem: ocean waves
+
+Generated haiku:
+Ocean waves crash down
+Against the ancient shoreline
+Nature's endless song
+```
+
+## 🚀 Quick Start
+
+1. Clone and setup:
+   ```bash
+   git clone https://github.com/JasonBates/vibeCoding.git
+   cd vibeCoding
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. Add your OpenAI API key:
+   ```bash
+   echo "OPENAI_API_KEY=your_key_here" > .env
+   ```
+
+3. Launch the app:
+   ```bash
+   streamlit run streamlit_app.py
+   ```
+
+4. Open `http://localhost:8501` and start creating haikus!
+
+## 📸 Screenshots
+
+The Streamlit app features:
+- Beautiful gradient backgrounds
+- Glassmorphism design elements
+- Custom typography (Inter + Playfair Display)
+- Smooth animations and transitions
+- Mobile-responsive layout
+
+## 🤝 Contributing
+
+Feel free to submit issues and enhancement requests! This project is open to contributions.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
