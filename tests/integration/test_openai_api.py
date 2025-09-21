@@ -2,6 +2,8 @@
 
 These tests actually call OpenAI and cost money!
 Run only when you want to verify end-to-end functionality.
+
+Last updated: 2025-09-21 - Added GitHub Actions integration
 """
 
 import os
