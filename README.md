@@ -1,15 +1,17 @@
-# VibeCoding - LLM Haiku Generator
+# VibeCoding - Simple Haiku Generator
 
-A beautiful Python application that generates traditional English haikus using OpenAI's GPT-4.1-mini model. Features both a command-line interface and a modern Streamlit web UI with elegant styling.
+A basic "hello world" Python project that generates simple haikus using OpenAI's API. This is a learning project to explore LLM integration, not a serious application.
 
-## Features
+## What This Is
 
-- **🎨 Beautiful Streamlit UI**: Modern, responsive web interface with gradient backgrounds and custom typography
-- **📝 Traditional Haiku Generation**: Creates authentic 5-7-5 syllable English haikus
-- **⚡ Real-time Generation**: Instant poem creation with loading animations
-- **🖥️ Dual Interface**: Both command-line and web-based interfaces
-- **🔧 Easy Setup**: Simple configuration with environment variables
-- **📱 Responsive Design**: Works perfectly on desktop and mobile devices
+This is a simple learning project that demonstrates:
+- **Basic LLM Integration**: How to call OpenAI's API from Python
+- **Simple Web UI**: A basic Streamlit interface for user interaction
+- **Command Line Tool**: A simple CLI script for haiku generation
+- **Testing Examples**: Basic unit and integration test patterns
+- **Project Structure**: How to organize a small Python project
+
+**Note**: This is not production-ready code - it's just a fun way to learn about LLMs and Python development!
 
 ## Setup
 
@@ -141,13 +143,13 @@ The Streamlit app features:
 
 ## 🧪 Testing
 
-This project includes a comprehensive testing suite with both unit tests and integration tests.
+This project includes basic testing examples to learn about:
 
 ### Test Types
 
-- **Unit Tests**: Fast, isolated tests that verify code logic without external dependencies
-- **Integration Tests**: Real API tests that call OpenAI and generate actual haikus (costs money)
-- **End-to-End Tests**: Complete workflow tests from input to output
+- **Unit Tests**: Simple tests that mock external dependencies (good for learning)
+- **Integration Tests**: Basic tests that call the real OpenAI API (costs money!)
+- **End-to-End Tests**: Simple workflow tests from input to output
 
 ### Running Tests
 
@@ -207,9 +209,18 @@ tests/
 - `@pytest.mark.slow` - Slow tests
 - `@pytest.mark.expensive` - Expensive tests (cost money)
 
+## 🎓 Learning Goals
+
+This project was created to learn about:
+- OpenAI API integration
+- Streamlit web development
+- Python testing patterns
+- Project organization
+- Git and GitHub workflows
+
 ## 🤝 Contributing
 
-Feel free to submit issues and enhancement requests! This project is open to contributions.
+This is a learning project, but feel free to fork it and experiment! It's a good starting point for understanding LLM integration.
 
 ## 📄 License
 
