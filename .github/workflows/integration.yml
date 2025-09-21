@@ -16,9 +16,6 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     
-    # Only run if OPENAI_API_KEY is available
-    if: ${{ secrets.OPENAI_API_KEY }}
-    
     strategy:
       matrix:
         python-version: ["3.11"]  # Only test on one version for integration tests
@@ -48,6 +45,17 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
+        # Check if API key is available
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "⚠️  OPENAI_API_KEY secret not set. Skipping integration tests."
+          echo "To run integration tests:"
+          echo "1. Go to Settings → Secrets and variables → Actions"
+          echo "2. Add OPENAI_API_KEY secret with your OpenAI API key"
+          echo "3. Re-run this workflow"
+          exit 0
+        fi
+        
+        echo "✅ OPENAI_API_KEY found. Running integration tests..."
         # Run only integration tests
         pytest tests/integration/ -v --tb=short
         
