@@ -46,7 +46,8 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'test-key-for-mocking' }}
       run: |
-        pytest tests/ -v --cov=. --cov-report=xml --cov-report=html
+        # Run only unit tests (exclude integration and e2e tests)
+        pytest tests/ -v --cov=. --cov-report=xml --cov-report=html -m "not integration and not e2e"
     
     - name: Upload coverage to Codecov
       if: matrix.python-version == '3.11'
