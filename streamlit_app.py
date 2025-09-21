@@ -27,16 +27,16 @@ def generate_poem(client: OpenAI, subject: str) -> str:
         model="gpt-4.1-mini",
         input=(
             "Write an English haiku (three lines, 5-7-5 syllable pattern) about the following subject: "
-            f"{subject}. Use the word 'pipes' at least once. "
-            "Return the haiku on a single line with each line separated by ' | '."
+            f"{subject}. "
+            "Return the haiku as three lines, each line on its own line."
         ),
     )
     return response.output_text
 
 
 def _poem_lines(poem: str) -> list[str]:
-    """Return poem segments split on pipes with whitespace trimmed."""
-    lines = [segment.strip() for segment in poem.split("|")]
+    """Return poem lines split on newlines with whitespace trimmed."""
+    lines = [line.strip() for line in poem.splitlines()]
     cleaned_lines = [line for line in lines if line]
     return cleaned_lines or [poem]
 
