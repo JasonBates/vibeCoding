@@ -6,7 +6,7 @@ A basic "hello world" Python project that generates simple haikus using OpenAI's
 
 This project was created to test and learn about:
 - **VibeCoding**: AI-powered coding assistance and pair programming
-- **CLI: Command-line AI interactions
+- **CLI:** Command-line AI interactions
 - **Dreamlit**: Streamlit application development and deployment
 - **Test Suite**: Comprehensive testing with pytest, unit tests, and integration tests
 - **GitHub Actions**: CI/CD workflows and automated testing
