@@ -2,6 +2,18 @@
 
 A basic "hello world" Python project that generates simple haikus using OpenAI's API. This is a learning project to explore LLM integration, not a serious application.
 
+## 🧪 Testing Purpose
+
+This project was created to test and learn about:
+- **VibeCoding**: AI-powered coding assistance and pair programming
+- **TLI (Terminal Language Interface)**: Command-line AI interactions
+- **Dreamlit**: Streamlit application development and deployment
+- **Test Suite**: Comprehensive testing with pytest, unit tests, and integration tests
+- **GitHub Actions**: CI/CD workflows and automated testing
+- **Version Control**: Git workflows, branching, and collaboration patterns
+
+It serves as a practical example for understanding modern Python development practices and AI tooling.
+
 ## What This Is
 
 This is a simple learning project that demonstrates:
