@@ -42,7 +42,6 @@ def _poem_lines(poem: str) -> list[str]:
 
 
 def main() -> None:
-    # Test comment to trigger unit tests only
     st.set_page_config(page_title="LLM Poem Generator", page_icon="📝")
     st.markdown(
         """
