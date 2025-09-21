@@ -139,6 +139,74 @@ The Streamlit app features:
 - Smooth animations and transitions
 - Mobile-responsive layout
 
+## 🧪 Testing
+
+This project includes a comprehensive testing suite with both unit tests and integration tests.
+
+### Test Types
+
+- **Unit Tests**: Fast, isolated tests that verify code logic without external dependencies
+- **Integration Tests**: Real API tests that call OpenAI and generate actual haikus (costs money)
+- **End-to-End Tests**: Complete workflow tests from input to output
+
+### Running Tests
+
+#### Quick Start (Unit Tests Only)
+```bash
+# Run fast unit tests (recommended for development)
+python run_tests.py unit
+
+# Run with coverage
+python run_tests.py unit --coverage
+```
+
+#### Integration Testing (Real OpenAI API)
+```bash
+# Set your API key
+export OPENAI_API_KEY=your_api_key_here
+
+# Run integration tests (calls real OpenAI API)
+python run_tests.py integration
+
+# Run end-to-end tests
+python run_tests.py e2e
+```
+
+#### All Tests
+```bash
+# Run everything
+python run_tests.py all
+```
+
+### Test Structure
+
+```
+tests/
+├── unit/                    # Fast, isolated tests
+│   ├── test_cli.py
+│   ├── test_streamlit_app.py
+│   └── test_haiku_validation.py
+├── integration/             # Real API tests
+│   ├── test_openai_api.py
+│   ├── test_e2e_haiku.py
+│   └── README.md
+└── conftest.py
+```
+
+### GitHub Actions
+
+- **Unit Tests**: Run automatically on every push
+- **Integration Tests**: Run manually or when integration files change
+- **Coverage**: Uploaded to Codecov for tracking
+
+### Test Markers
+
+- `@pytest.mark.unit` - Unit tests
+- `@pytest.mark.integration` - Integration tests  
+- `@pytest.mark.e2e` - End-to-end tests
+- `@pytest.mark.slow` - Slow tests
+- `@pytest.mark.expensive` - Expensive tests (cost money)
+
 ## 🤝 Contributing
 
 Feel free to submit issues and enhancement requests! This project is open to contributions.
