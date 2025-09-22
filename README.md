@@ -49,7 +49,7 @@ This is a simple learning project that demonstrates:
    ```bash
    echo "OPENAI_API_KEY=your_api_key_here" > .env
    ```
-   
+
    Or export the environment variable:
    ```bash
    export OPENAI_API_KEY=your_api_key_here
@@ -216,7 +216,7 @@ tests/
 ### Test Markers
 
 - `@pytest.mark.unit` - Unit tests
-- `@pytest.mark.integration` - Integration tests  
+- `@pytest.mark.integration` - Integration tests
 - `@pytest.mark.e2e` - End-to-end tests
 - `@pytest.mark.slow` - Slow tests
 - `@pytest.mark.expensive` - Expensive tests (cost money)

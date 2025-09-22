@@ -1,8 +1,8 @@
 """Streamlit UI for generating poems with the OpenAI Responses API."""
 from __future__ import annotations
 
-import os
 import html
+import os
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -26,8 +26,8 @@ def generate_poem(client: OpenAI, subject: str) -> str:
     response = client.responses.create(
         model="gpt-4.1-mini",
         input=(
-            "Write an English haiku (three lines, 5-7-5 syllable pattern) about the following subject: "
-            f"{subject}. "
+            "Write an English haiku (three lines, 5-7-5 syllable pattern) "
+            f"about the following subject: {subject}. "
             "Return the haiku as three lines, each line on its own line."
         ),
     )
@@ -46,10 +46,10 @@ def main() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap');
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap");  # noqa: E501
 
         .stApp {
-            background: radial-gradient(circle at top left, #fdf2ff 0%, #f6f9ff 40%, #dbeafe 100%);
+            background: radial-gradient(circle at top left, #fdf2ff 0%, #f6f9ff 40%, #dbeafe 100%);  # noqa: E501
             font-family: 'Inter', sans-serif;
             color: #0f172a;
         }
@@ -161,7 +161,8 @@ def main() -> None:
         """
         <div class="hero-text">
             <h1>LLM Haiku Generator</h1>
-            <p>Summon bespoke 5-7-5 verses that whisper about <span class="accent">pipes</span>.</p>
+            <p>Summon bespoke 5-7-5 verses that whisper about
+            <span class="accent">pipes</span>.</p>
             <p>Type a subject, press Enter, and enjoy a refined haiku in seconds.</p>
         </div>
         """,
@@ -188,7 +189,8 @@ def main() -> None:
             const doc = window.parent.document;
             const inputs = doc.querySelectorAll('input[type="text"]');
             for (const input of inputs) {
-                const label = (input.getAttribute('aria-label') || '').trim().toLowerCase();
+                const label = (input.getAttribute('aria-label') || '')
+                    .trim().toLowerCase();
                 if (label === 'subject') {
                     input.focus();
                     input.select();

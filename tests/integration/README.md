@@ -70,7 +70,7 @@ pytest tests/integration/test_e2e_haiku.py::TestEndToEndHaiku -v
 Tests are marked with pytest markers for easy filtering:
 
 - `@pytest.mark.integration` - Integration tests
-- `@pytest.mark.e2e` - End-to-end tests  
+- `@pytest.mark.e2e` - End-to-end tests
 - `@pytest.mark.slow` - Slow tests
 - `@pytest.mark.expensive` - Expensive tests (cost money)
 

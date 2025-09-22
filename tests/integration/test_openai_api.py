@@ -7,13 +7,15 @@ Last updated: 2025-09-21 - Added GitHub Actions integration
 """
 
 import os
-import pytest
-from unittest.mock import patch
-from openai import OpenAI
-from streamlit_app import generate_poem, get_client
-from simple_llm_request import main as cli_main
 from contextlib import redirect_stdout
 from io import StringIO
+from unittest.mock import patch
+
+import pytest
+from openai import OpenAI
+
+from simple_llm_request import main as cli_main
+from streamlit_app import generate_poem, get_client
 
 
 class TestOpenAIIntegration:
@@ -36,18 +38,20 @@ class TestOpenAIIntegration:
         # Verify basic structure
         assert isinstance(result, str)
         assert len(result) > 10  # Should be substantial
-        assert len(result.split('\n')) == 3  # Should have 3 lines
+        assert len(result.split("\n")) == 3  # Should have 3 lines
 
         # Verify content relevance (basic check)
         result_lower = result.lower()
-        assert any(word in result_lower for word in [
-                   "coffee", "morning", "brew", "cup", "wake"])
+        assert any(
+            word in result_lower
+            for word in ["coffee", "morning", "brew", "cup", "wake"]
+        )
 
         print(f"Generated haiku: {result}")
 
     def test_cli_openai_integration(self):
         """Test CLI with real OpenAI API."""
-        with patch('builtins.input', return_value="mountain sunset"):
+        with patch("builtins.input", return_value="mountain sunset"):
             with redirect_stdout(StringIO()) as captured_output:
                 cli_main()
 
@@ -57,15 +61,20 @@ class TestOpenAIIntegration:
         assert "Generated haiku:" in output
 
         # Check that haiku was generated (more flexible than exact word matching)
-        haiku_lines = [line for line in output.strip().split('\n')
-                       if line and not line.startswith("Generated haiku:")]
-        assert len(
-            haiku_lines) == 3, f"Expected 3 haiku lines, got {len(haiku_lines)}: {haiku_lines}"
+        haiku_lines = [
+            line
+            for line in output.strip().split("\n")
+            if line and not line.startswith("Generated haiku:")
+        ]
+        assert (
+            len(haiku_lines) == 3
+        ), f"Expected 3 haiku lines, got {len(haiku_lines)}: {haiku_lines}"
 
         # Extract the haiku from output
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
         haiku_lines = [
-            line for line in lines if line and not line.startswith("Generated haiku:")]
+            line for line in lines if line and not line.startswith("Generated haiku:")
+        ]
 
         assert len(haiku_lines) == 3
         print(f"CLI generated: {haiku_lines}")
@@ -91,18 +100,13 @@ class TestOpenAIIntegration:
         """Test haiku generation with different subjects."""
         client = get_client()
 
-        subjects = [
-            "winter snow",
-            "summer rain",
-            "autumn leaves",
-            "spring flowers"
-        ]
+        subjects = ["winter snow", "summer rain", "autumn leaves", "spring flowers"]
 
         for subject in subjects:
             result = generate_poem(client, subject)
 
             # Basic validation
-            assert len(result.split('\n')) == 3
+            assert len(result.split("\n")) == 3
             assert len(result) > 15
 
             # Check if subject is referenced (not always guaranteed)
@@ -120,7 +124,7 @@ class TestOpenAIIntegration:
         client = get_client()
         result = generate_poem(client, "ocean waves")
 
-        lines = result.split('\n')
+        lines = result.split("\n")
 
         # Check line lengths (rough syllable approximation)
         line_lengths = [len(line.strip()) for line in lines if line.strip()]
@@ -132,10 +136,8 @@ class TestOpenAIIntegration:
 
         # Check for poetic elements
         result_lower = result.lower()
-        poetic_words = ["waves", "ocean", "sea",
-                        "blue", "deep", "flow", "tide"]
-        has_poetic_elements = any(
-            word in result_lower for word in poetic_words)
+        poetic_words = ["waves", "ocean", "sea", "blue", "deep", "flow", "tide"]
+        has_poetic_elements = any(word in result_lower for word in poetic_words)
 
         print(f"Haiku: {result}")
         print(f"Line lengths: {line_lengths}")
@@ -145,6 +147,6 @@ class TestOpenAIIntegration:
 # Pytest markers for different test types
 pytestmark = [
     pytest.mark.integration,  # Mark as integration test
-    pytest.mark.slow,         # Mark as slow test
-    pytest.mark.expensive,    # Mark as expensive test
+    pytest.mark.slow,  # Mark as slow test
+    pytest.mark.expensive,  # Mark as expensive test
 ]

@@ -1,8 +1,9 @@
 """Pytest configuration and fixtures for haiku generator tests."""
 
 import os
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 from openai import OpenAI
 
 
@@ -17,7 +18,9 @@ def mock_openai_client():
 def mock_api_response():
     """Mock API response for haiku generation."""
     response = Mock()
-    response.output_text = "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+    response.output_text = (
+        "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+    )
     return response
 
 

@@ -1,9 +1,10 @@
 """Tests for haiku validation and formatting."""
 
-import pytest
+import os
 import re
 import sys
-import os
+
+import pytest
 
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -25,7 +26,7 @@ class TestHaikuValidation:
         # For now, we'll test that the lines exist and are reasonable lengths
         haiku = "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
         lines = _poem_lines(haiku)
-        
+
         assert len(lines) == 3
         # Basic length checks (not perfect syllable counting)
         assert len(lines[0].split()) >= 2  # First line should have some words
@@ -54,7 +55,7 @@ class TestHaikuValidation:
             ("Single line", ["Single line"]),
             ("", [""]),
         ]
-        
+
         for input_text, expected in test_cases:
             result = _poem_lines(input_text)
             assert result == expected, f"Failed for input: {repr(input_text)}"
@@ -62,15 +63,15 @@ class TestHaikuValidation:
     def test_haiku_content_quality(self, sample_haiku):
         """Test basic content quality of generated haiku."""
         lines = _poem_lines(sample_haiku)
-        
+
         # Each line should have content
         for line in lines:
             assert len(line.strip()) > 0
             assert len(line.split()) > 0  # Should have words
-        
+
         # Should not be identical lines
         assert len(set(lines)) > 1, "All lines should not be identical"
-        
+
         # Should contain some meaningful words (not just punctuation)
         all_text = " ".join(lines)
         words = all_text.split()
@@ -80,7 +81,7 @@ class TestHaikuValidation:
         """Test that _poem_lines properly trims whitespace."""
         haiku_with_spaces = "  Line one  \n  Line two  \n  Line three  "
         result = _poem_lines(haiku_with_spaces)
-        
+
         expected = ["Line one", "Line two", "Line three"]
         assert result == expected
 
@@ -88,6 +89,6 @@ class TestHaikuValidation:
         """Test that empty lines are properly removed."""
         haiku_with_empty = "Line one\n\n\nLine two\n\nLine three"
         result = _poem_lines(haiku_with_empty)
-        
+
         expected = ["Line one", "Line two", "Line three"]
         assert result == expected
