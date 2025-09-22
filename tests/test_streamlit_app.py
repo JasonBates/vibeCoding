@@ -9,6 +9,7 @@ import pytest
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from haiku_service import MissingAPIKeyError
 from streamlit_app import _poem_lines, generate_poem, get_client
 
 
@@ -17,30 +18,35 @@ class TestStreamlitApp:
 
     def test_get_client_with_valid_key(self, mock_env_vars):
         """Test get_client with valid API key."""
-        with patch("streamlit_app.OpenAI") as mock_openai_class:
+        with patch("haiku_service.get_client") as mock_get_client:
             mock_client = Mock()
-            mock_openai_class.return_value = mock_client
+            mock_get_client.return_value = mock_client
 
             client = get_client()
 
             assert client == mock_client
-            mock_openai_class.assert_called_once_with(api_key="test-api-key")
+            mock_get_client.assert_called_once()
 
     def test_get_client_without_api_key(self):
         """Test get_client without API key raises error."""
-        with patch.dict(os.environ, {}, clear=True):
+        error_message = (
+            "OPENAI_API_KEY not set; add it to .env or export it before running "
+            "this script."
+        )
+
+        with patch("streamlit_app.st") as mock_st:
+            mock_st.error.return_value = None
+            mock_st.stop.side_effect = SystemExit("API key not found")
+
             with patch(
-                "streamlit_app.load_dotenv"
-            ):  # Mock load_dotenv to prevent .env loading
-                with patch("streamlit_app.st") as mock_st:
-                    mock_st.error.return_value = None
-                    mock_st.stop.side_effect = SystemExit("API key not found")
+                "haiku_service.get_client",
+                side_effect=MissingAPIKeyError(error_message),
+            ):
+                with pytest.raises(SystemExit):  # st.stop() raises SystemExit
+                    get_client()
 
-                    with pytest.raises(SystemExit):  # st.stop() raises SystemExit
-                        get_client()
-
-                    mock_st.error.assert_called_once()
-                    mock_st.stop.assert_called_once()
+            mock_st.error.assert_called_once()
+            mock_st.stop.assert_called_once()
 
     def test_generate_poem(self, mock_openai_client, mock_api_response, sample_subject):
         """Test generate_poem function."""

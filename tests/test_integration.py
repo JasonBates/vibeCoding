@@ -12,6 +12,7 @@ import pytest
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from haiku_service import MissingAPIKeyError
 from simple_llm_request import main
 from streamlit_app import _poem_lines, generate_poem
 
@@ -28,7 +29,7 @@ class TestIntegration:
         )
 
         # Test CLI prompt generation
-        with patch("simple_llm_request.OpenAI", return_value=mock_client):
+        with patch("haiku_service.get_client", return_value=mock_client):
             mock_client.responses.create.return_value = mock_response
 
             with patch("builtins.input", return_value=sample_subject):
@@ -41,12 +42,11 @@ class TestIntegration:
         mock_client.reset_mock()
 
         # Test Streamlit prompt generation
-        with patch("streamlit_app.OpenAI", return_value=mock_client):
-            mock_client.responses.create.return_value = mock_response
+        mock_client.responses.create.return_value = mock_response
 
-            generate_poem(mock_client, sample_subject)
+        generate_poem(mock_client, sample_subject)
 
-            streamlit_call = mock_client.responses.create.call_args
+        streamlit_call = mock_client.responses.create.call_args
 
         # Compare the prompts
         cli_prompt = cli_call[1]["input"]
@@ -86,30 +86,36 @@ class TestIntegration:
 
     def test_error_handling_consistency(self):
         """Test that both interfaces handle errors consistently."""
+        error_message = (
+            "OPENAI_API_KEY not set; add it to .env or export it before running "
+            "this script."
+        )
+
         # Test CLI error handling
-        with patch.dict(os.environ, {}, clear=True):
-            with patch(
-                "simple_llm_request.load_dotenv"
-            ):  # Mock load_dotenv to prevent .env loading
-                with patch(
-                    "builtins.input", return_value="test"
-                ):  # Mock input to avoid stdin issues
-                    with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
-                        main()
+        with patch(
+            "haiku_service.get_client",
+            side_effect=MissingAPIKeyError(error_message),
+        ):
+            with patch("builtins.input", return_value="test"):
+                with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
+                    main()
 
         # Test Streamlit error handling
-        with patch.dict(os.environ, {}, clear=True):
+        with patch("streamlit_app.st") as mock_st:
+            mock_st.error.return_value = None
+            mock_st.stop.side_effect = SystemExit("API key not found")
+
             with patch(
-                "streamlit_app.load_dotenv"
-            ):  # Mock load_dotenv to prevent .env loading
-                with patch("streamlit_app.st") as mock_st:
-                    mock_st.error.return_value = None
-                    mock_st.stop.side_effect = SystemExit("API key not found")
+                "haiku_service.get_client",
+                side_effect=MissingAPIKeyError(error_message),
+            ):
+                with pytest.raises(SystemExit):
+                    from streamlit_app import get_client
 
-                    with pytest.raises(SystemExit):
-                        from streamlit_app import get_client
+                    get_client()
 
-                        get_client()
+            mock_st.error.assert_called_once()
+            mock_st.stop.assert_called_once()
 
     def test_model_consistency(self, mock_env_vars, sample_subject):
         """Test that both interfaces use the same model."""
@@ -118,7 +124,7 @@ class TestIntegration:
         mock_response.output_text = "Test haiku"
 
         # Test CLI model
-        with patch("simple_llm_request.OpenAI", return_value=mock_client):
+        with patch("haiku_service.get_client", return_value=mock_client):
             mock_client.responses.create.return_value = mock_response
 
             with patch("builtins.input", return_value=sample_subject):
@@ -131,12 +137,11 @@ class TestIntegration:
         mock_client.reset_mock()
 
         # Test Streamlit model
-        with patch("streamlit_app.OpenAI", return_value=mock_client):
-            mock_client.responses.create.return_value = mock_response
+        mock_client.responses.create.return_value = mock_response
 
-            generate_poem(mock_client, sample_subject)
+        generate_poem(mock_client, sample_subject)
 
-            streamlit_model = mock_client.responses.create.call_args[1]["model"]
+        streamlit_model = mock_client.responses.create.call_args[1]["model"]
 
         # Both should use the same model
         assert cli_model == streamlit_model
@@ -148,7 +153,7 @@ class TestIntegration:
 
         # Test CLI
         with patch.dict(os.environ, {"OPENAI_API_KEY": test_key}):
-            with patch("simple_llm_request.OpenAI") as mock_openai_class:
+            with patch("haiku_service.OpenAI") as mock_openai_class:
                 mock_client = Mock()
                 mock_openai_class.return_value = mock_client
 
@@ -160,7 +165,7 @@ class TestIntegration:
 
         # Test Streamlit
         with patch.dict(os.environ, {"OPENAI_API_KEY": test_key}):
-            with patch("streamlit_app.OpenAI") as mock_openai_class:
+            with patch("haiku_service.OpenAI") as mock_openai_class:
                 mock_client = Mock()
                 mock_openai_class.return_value = mock_client
 

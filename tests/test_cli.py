@@ -7,12 +7,13 @@ import os
 import sys
 from contextlib import redirect_stdout
 from io import StringIO
-from unittest.mock import Mock, call, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from haiku_service import MissingAPIKeyError
 from simple_llm_request import main
 
 
@@ -23,7 +24,7 @@ class TestCLI:
         self, mock_env_vars, mock_openai_client, mock_api_response
     ):
         """Test main function with valid API key."""
-        with patch("simple_llm_request.OpenAI", return_value=mock_openai_client):
+        with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.responses.create.return_value = mock_api_response
 
             # Test with input
@@ -49,7 +50,7 @@ class TestCLI:
         self, mock_env_vars, mock_openai_client, mock_api_response
     ):
         """Test main function with empty input (default subject)."""
-        with patch("simple_llm_request.OpenAI", return_value=mock_openai_client):
+        with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.responses.create.return_value = mock_api_response
 
             # Test with empty input (should use default)
@@ -63,21 +64,26 @@ class TestCLI:
 
     def test_main_without_api_key(self):
         """Test main function without API key raises error."""
-        with patch.dict(os.environ, {}, clear=True):
+        error_message = (
+            "OPENAI_API_KEY not set; add it to .env or export it before running "
+            "this script."
+        )
+
+        with patch(
+            "haiku_service.get_client",
+            side_effect=MissingAPIKeyError(error_message),
+        ):
             with patch(
-                "simple_llm_request.load_dotenv"
-            ):  # Mock load_dotenv to prevent .env loading
-                with patch(
-                    "builtins.input", return_value="test"
-                ):  # Mock input to avoid stdin issues
-                    with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
-                        main()
+                "builtins.input", return_value="test"
+            ):  # Mock input to avoid stdin issues
+                with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
+                    main()
 
     def test_prompt_formatting(
         self, mock_env_vars, mock_openai_client, mock_api_response
     ):
         """Test that prompt is formatted correctly."""
-        with patch("simple_llm_request.OpenAI", return_value=mock_openai_client):
+        with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.responses.create.return_value = mock_api_response
 
             test_subject = "ocean waves"
@@ -101,7 +107,7 @@ class TestCLI:
         response = Mock()
         response.output_text = sample_haiku
 
-        with patch("simple_llm_request.OpenAI", return_value=mock_openai_client):
+        with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.responses.create.return_value = response
 
             with patch("builtins.input", return_value="test"):

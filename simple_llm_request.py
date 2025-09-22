@@ -7,40 +7,25 @@ Setup steps when running from the repo root:
 """
 from __future__ import annotations
 
-import os
-
-from dotenv import load_dotenv
-from openai import OpenAI
+import haiku_service
 
 
 def main() -> None:
     """Fetch an English haiku from a GPT-4.1 model and print it."""
-    load_dotenv()
-
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY not set; add it to .env or export it before "
-            "running this script."
-        )
-
-    subject = input("Enter a subject for the haiku: ").strip() or "quiet mornings"
-    prompt = (
-        "Write an English haiku (three lines, 5-7-5 syllable pattern) "
-        "about the following subject: "
-        f"{subject}. "
-        "Return the haiku as three lines, each line on its own line."
+    subject = (
+        input("Enter a subject for the haiku: ").strip()
+        or haiku_service.DEFAULT_SUBJECT
     )
 
-    client = OpenAI(api_key=api_key)
+    try:
+        client = haiku_service.get_client()
+    except haiku_service.MissingAPIKeyError as exc:  # Preserve existing CLI UX
+        raise RuntimeError(str(exc)) from exc
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
-    )
+    response_text = haiku_service.generate_haiku(client, subject)
 
     print("\nGenerated haiku:\n")
-    print(response.output_text)
+    print(response_text)
 
 
 if __name__ == "__main__":
