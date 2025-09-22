@@ -29,7 +29,7 @@ This is a simple learning project that demonstrates:
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/JasonBates/vibeCoding.git
    cd vibeCoding
    ```
 
