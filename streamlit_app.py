@@ -2,36 +2,26 @@
 from __future__ import annotations
 
 import html
-import os
 
 import streamlit as st
 import streamlit.components.v1 as components
-from dotenv import load_dotenv
 from openai import OpenAI
+
+import haiku_service
 
 
 def get_client() -> OpenAI:
-    """Create an OpenAI client using the API key from the environment."""
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        msg = "OPENAI_API_KEY not configured. Set it in .env or the environment."
-        st.error(msg)
+    """Create an OpenAI client and surface configuration issues in the UI."""
+    try:
+        return haiku_service.get_client()
+    except haiku_service.MissingAPIKeyError as exc:
+        st.error(str(exc))
         st.stop()
-    return OpenAI(api_key=api_key)
 
 
 def generate_poem(client: OpenAI, subject: str) -> str:
-    """Request a five-line poem about the given subject."""
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=(
-            "Write an English haiku (three lines, 5-7-5 syllable pattern) "
-            f"about the following subject: {subject}. "
-            "Return the haiku as three lines, each line on its own line."
-        ),
-    )
-    return response.output_text
+    """Request a haiku about the given subject."""
+    return haiku_service.generate_haiku(client, subject)
 
 
 def _poem_lines(poem: str) -> list[str]:
