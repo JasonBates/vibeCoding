@@ -7,10 +7,12 @@ Setup steps when running from the repo root:
 """
 from __future__ import annotations
 
+import sys
+
 import haiku_service
 
 
-def main() -> None:
+def main() -> int:
     """Fetch an English haiku from a GPT-4.1 model and print it."""
     # Get subject from user input or use default
     subject = (
@@ -37,4 +39,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
