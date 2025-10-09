@@ -63,7 +63,7 @@ class TestCLI:
             assert "quiet mornings" in call_args[1]["input"]
 
     def test_main_without_api_key(self):
-        """Test main function without API key raises error."""
+        """Test main function without API key returns error code."""
         error_message = (
             "OPENAI_API_KEY not set; add it to .env or export it before running "
             "this script."
@@ -76,8 +76,12 @@ class TestCLI:
             with patch(
                 "builtins.input", return_value="test"
             ):  # Mock input to avoid stdin issues
-                with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
-                    main()
+                with redirect_stdout(StringIO()) as captured_output:
+                    result = main()
+                    assert result == 1
+                    output = captured_output.getvalue()
+                    assert "Error:" in output
+                    assert "OPENAI_API_KEY" in output
 
     def test_prompt_formatting(
         self, mock_env_vars, mock_openai_client, mock_api_response

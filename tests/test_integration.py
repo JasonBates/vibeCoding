@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from contextlib import redirect_stdout
+from io import StringIO
 from unittest.mock import Mock, patch
 
 import pytest
@@ -97,8 +99,12 @@ class TestIntegration:
             side_effect=MissingAPIKeyError(error_message),
         ):
             with patch("builtins.input", return_value="test"):
-                with pytest.raises(RuntimeError, match="OPENAI_API_KEY not set"):
-                    main()
+                with redirect_stdout(StringIO()) as captured_output:
+                    result = main()
+                    assert result == 1
+                    output = captured_output.getvalue()
+                    assert "Error:" in output
+                    assert "OPENAI_API_KEY" in output
 
         # Test Streamlit error handling
         with patch("streamlit_app.st") as mock_st:
