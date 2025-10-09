@@ -20,13 +20,20 @@ def main() -> None:
 
     try:
         client = haiku_service.get_client()
-    except haiku_service.MissingAPIKeyError as exc:  # Preserve existing CLI UX
-        raise RuntimeError(str(exc)) from exc
+        response_text = haiku_service.generate_haiku(client, subject)
 
-    response_text = haiku_service.generate_haiku(client, subject)
+        print("\nGenerated haiku:\n")
+        print(response_text)
 
-    print("\nGenerated haiku:\n")
-    print(response_text)
+    except haiku_service.MissingAPIKeyError as exc:
+        print(f"Error: {exc}")
+        print("Please set your OPENAI_API_KEY environment variable.")
+        return 1
+    except Exception as exc:
+        print(f"Unexpected error: {exc}")
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
