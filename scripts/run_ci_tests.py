@@ -29,6 +29,11 @@ def run_command(cmd, description):
 
 def check_credentials():
     """Check which credentials are available and valid."""
+    # Load environment variables from .env file
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     openai_key = os.getenv("OPENAI_API_KEY")
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
@@ -40,6 +45,12 @@ def check_credentials():
     supabase_valid = False
     if supabase_url and supabase_key:
         try:
+            # Add current directory to Python path for imports
+            import sys
+            from pathlib import Path
+
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+
             from haiku_storage_service import HaikuStorageService
 
             print(f"🔍 Testing Supabase connection with URL: {supabase_url[:20]}...")
@@ -108,10 +119,11 @@ def main():
         print("\n⚠️  Skipping OpenAI Integration Tests (no valid API key)")
 
     # 3. Run Supabase integration tests (if credentials available)
-    if creds["supabase"]:
-        print("\n🗄️  Running Supabase Integration Tests")
-        print("=" * 60)
+    # Run Supabase integration tests - REQUIRED
+    print("\n🗄️  Running Supabase Integration Tests")
+    print("=" * 60)
 
+    if creds["supabase"]:
         supabase_cmd = [
             "pytest",
             "tests/integration/test_supabase_integration.py",
@@ -121,7 +133,9 @@ def main():
         if not run_command(supabase_cmd, "Supabase Integration Tests"):
             all_passed = False
     else:
-        print("\n⚠️  Skipping Supabase Integration Tests (no credentials)")
+        print("❌ Supabase Integration Tests - FAILED (no valid credentials)")
+        print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
+        all_passed = False
 
     # 4. Run coverage report (if all tests passed)
     if all_passed:
@@ -149,6 +163,12 @@ def main():
 
         if not run_command(coverage_cmd, "Coverage Report"):
             all_passed = False
+
+    # Fail if Supabase credentials are missing or invalid
+    if not creds["supabase"]:
+        print("❌ Supabase integration tests require valid credentials")
+        print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
+        all_passed = False
 
     # Final result
     print("\n🎯 Test Results Summary")

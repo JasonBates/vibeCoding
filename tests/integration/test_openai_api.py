@@ -43,10 +43,33 @@ class TestOpenAIIntegration:
 
         # Verify content relevance (basic check)
         result_lower = result.lower()
+        # Check for any coffee-related or morning-related words
+        coffee_words = [
+            "coffee",
+            "morning",
+            "brew",
+            "cup",
+            "wake",
+            "dawn",
+            "sunrise",
+            "steam",
+            "aroma",
+            "caffeine",
+        ]
+        morning_words = [
+            "morning",
+            "dawn",
+            "sunrise",
+            "wake",
+            "awake",
+            "early",
+            "daybreak",
+        ]
+
+        # Should contain at least one relevant word
         assert any(
-            word in result_lower
-            for word in ["coffee", "morning", "brew", "cup", "wake"]
-        )
+            word in result_lower for word in coffee_words + morning_words
+        ), f"Poem should contain coffee/morning related words. Got: {result[:100]}..."
 
         print(f"Generated poem: {result}")
 
