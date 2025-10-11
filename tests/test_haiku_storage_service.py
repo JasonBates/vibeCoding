@@ -272,6 +272,30 @@ class TestHaikuStorageService:
         # Verify result
         assert result is False
 
+    def test_delete_haiku_success(self, service, mock_repository):
+        """Test deleting a haiku successfully."""
+        mock_repository.delete.return_value = True
+
+        result = service.delete_haiku("test-id")
+
+        mock_repository.delete.assert_called_once_with("test-id")
+        assert result is True
+
+    def test_delete_haiku_invalid_id(self, service, mock_repository):
+        """Test deleting a haiku with an invalid ID."""
+        result = service.delete_haiku("  ")
+
+        mock_repository.delete.assert_not_called()
+        assert result is False
+
+    def test_delete_haiku_repository_error(self, service, mock_repository):
+        """Test deleting a haiku when the repository raises an error."""
+        mock_repository.delete.side_effect = Exception("Database error")
+
+        result = service.delete_haiku("test-id")
+
+        assert result is False
+
     def test_client_property_creation(self):
         """Test Supabase client creation."""
         with patch("haiku_storage_service.create_client") as mock_create_client:

@@ -157,3 +157,22 @@ class HaikuStorageService:
         except Exception as e:
             logger.warning("Storage service not available: %s", e)
             return False
+
+    def delete_haiku(self, haiku_id: str) -> bool:
+        """Delete a haiku by its ID with validation and error handling.
+
+        Args:
+            haiku_id: ID of the haiku to delete
+
+        Returns:
+            True if the haiku was deleted, False otherwise
+        """
+        try:
+            if not haiku_id or not haiku_id.strip():
+                logger.warning("Cannot delete haiku: empty haiku_id")
+                return False
+
+            return self.repository.delete(haiku_id.strip())
+        except Exception as e:
+            logger.error("Failed to delete haiku '%s': %s", haiku_id, e)
+            return False
