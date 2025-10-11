@@ -63,7 +63,7 @@ def format_relative_time(dt: datetime) -> str:
         return "Just now"
 
 
-def render_haiku_card(haiku: Haiku) -> None:
+def render_haiku_card(haiku: Haiku, *, enable_delete: bool = False) -> None:
     """Render a stored poem as a card in the sidebar."""
     subject_text = html.escape(haiku.subject).upper()
     haiku_html = html.escape(haiku.haiku_text).replace(chr(10), "<br>")
@@ -84,6 +84,19 @@ def render_haiku_card(haiku: Haiku) -> None:
             """,
             unsafe_allow_html=True,
         )
+        if enable_delete and haiku.id:
+            delete_key = f"delete_button_{haiku.id}"
+            if st.button(
+                "✕", key=delete_key, help="Delete this haiku", type="secondary"
+            ):  # noqa: E501
+                st.session_state["delete_target"] = {
+                    "id": haiku.id,
+                    "subject": haiku.subject,
+                    "haiku_text": haiku.haiku_text,
+                }
+                st.session_state["show_delete_modal"] = True
+                st.session_state.pop("delete_error_message", None)
+                st.rerun()
 
 
 def generate_poem(client: OpenAI, subject: str) -> str:
@@ -107,10 +120,10 @@ def main() -> None:
     st.set_page_config(page_title="LLM Poem Generator", page_icon="📝", layout="wide")
 
     # Force light theme to maintain our custom design
-    st.markdown(
-        """
+    # CSS styles for the app
+    css_styles = """
         <style>
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap");  # noqa: E501
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap');  # noqa: E501
 
         .stApp {
             background: radial-gradient(circle at top left, #fdf2ff 0%, #f6f9ff 40%, #dbeafe 100%);  # noqa: E501
@@ -172,6 +185,40 @@ def main() -> None:
             color: #1e293b !important;
             font-weight: 500 !important;
             display: block !important;
+        }
+
+        .stSidebar .haiku-card + div[data-testid="stButton"] {
+            margin-top: -2.4rem !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+
+        .stSidebar .haiku-card + div[data-testid="stButton"] button {
+            background: rgba(248, 250, 252, 0.95) !important;
+            border: 1px solid rgba(148, 163, 184, 0.5) !important;
+            border-radius: 8px !important;
+            color: #475569 !important;
+            font-weight: 700 !important;
+            width: 32px !important;
+            height: 32px !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+        }
+
+        .stSidebar .haiku-card + div[data-testid="stButton"] button:hover {
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            color: #ef4444 !important;
+        }
+
+        .delete-haiku-preview {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(248, 250, 252, 0.92);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            font-family: 'Playfair Display', serif;
+            color: #1e293b;
+            line-height: 1.4;
         }
 
         .hero-text {
@@ -246,9 +293,12 @@ def main() -> None:
             margin-top: 2.8rem;
             padding: 2.2rem;
             border-radius: 26px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+            background: linear-gradient(
+                135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%
+            );
             color: #1e293b;
-            box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15),
+                         0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(99, 102, 241, 0.2);
             backdrop-filter: blur(20px);
             transition: all 0.3s ease;
@@ -256,7 +306,8 @@ def main() -> None:
 
         .haiku-display:hover {
             transform: translateY(-2px);
-            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2),
+                         0 12px 40px rgba(0, 0, 0, 0.15);
             border-color: rgba(99, 102, 241, 0.3);
         }
 
@@ -273,18 +324,23 @@ def main() -> None:
             border-radius: 18px;
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    """
+
+    st.markdown(css_styles, unsafe_allow_html=True)
 
     # Initialize storage service
     storage_service = get_storage_service()
+    storage_available = bool(storage_service and storage_service.is_available())
 
     # Create sidebar for haiku history
     with st.sidebar:
         st.markdown("### 📚 Poem Library")
 
-        if storage_service and storage_service.is_available():
+        success_message = st.session_state.pop("delete_success_message", None)
+        if success_message:
+            st.success(success_message)
+
+        if storage_available:
             # Add refresh button and search
             st.markdown("**Search by subject**")
             col1, col2 = st.columns([3, 1])
@@ -310,7 +366,7 @@ def main() -> None:
                     f"**{len(haikus)} poem{'s' if len(haikus) != 1 else ''} found**"
                 )
                 for haiku in haikus:
-                    render_haiku_card(haiku)
+                    render_haiku_card(haiku, enable_delete=True)
             else:
                 st.markdown("*No poems found*")
         else:
@@ -319,6 +375,53 @@ def main() -> None:
                 "Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file "
                 "to enable poem storage."
             )
+
+    if storage_available and st.session_state.get("show_delete_modal"):
+        target = st.session_state.get("delete_target")
+        if target:
+            with st.modal("Delete haiku?", key="delete_modal"):
+                subject = target.get("subject", "")
+                st.markdown(
+                    f"Are you sure you want to delete "
+                    f"<strong>{html.escape(subject)}</strong> from your library?",
+                    unsafe_allow_html=True,
+                )
+
+                haiku_lines = target.get("haiku_text", "").splitlines()
+                preview_html = "<br>".join(html.escape(line) for line in haiku_lines)
+                if preview_html:
+                    st.markdown(
+                        f"<div class='delete-haiku-preview'>{preview_html}</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                error_text = st.session_state.get("delete_error_message")
+                if error_text:
+                    st.error(error_text)
+
+                cancel_col, confirm_col = st.columns(2)
+                if cancel_col.button("Cancel", key="cancel_delete", type="secondary"):
+                    st.session_state.pop("show_delete_modal", None)
+                    st.session_state.pop("delete_target", None)
+                    st.session_state.pop("delete_error_message", None)
+                    st.rerun()
+
+                if confirm_col.button("Delete", key="confirm_delete", type="primary"):
+                    if storage_service.delete_haiku(target["id"]):
+                        st.session_state[
+                            "delete_success_message"
+                        ] = f'Removed "{subject}" from your library.'
+                        st.session_state.pop("delete_target", None)
+                        st.session_state.pop("delete_error_message", None)
+                        st.session_state.pop("show_delete_modal", None)
+                        st.rerun()
+                    else:
+                        st.session_state[
+                            "delete_error_message"
+                        ] = "Couldn't delete the haiku. Please try again."
+                        st.rerun()
+        else:
+            st.session_state.pop("show_delete_modal", None)
 
     # Main content area
     with st.container():
@@ -389,7 +492,7 @@ def main() -> None:
             st.session_state["generated_poem"] = poem
 
             # Auto-save to Supabase if available
-            if storage_service and storage_service.is_available():
+            if storage_available and storage_service:
                 saved_haiku = storage_service.save_haiku(subject, poem)
                 if saved_haiku:
                     st.success("✨ Poem saved to history!")

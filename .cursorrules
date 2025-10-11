@@ -139,6 +139,26 @@ pip install -r requirements.txt
   pytest.fail("Supabase credentials not configured - SUPABASE_URL and SUPABASE_KEY required")
   ```
 
+- **HTML/CSS Strings**: Use `# noqa: E501` at the END of long lines (not inside strings):
+  ```python
+  # ✅ Good - noqa at end of line
+  css_styles = """
+      <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap');  # noqa: E501
+      .stApp {
+          background: radial-gradient(circle at top left, #fdf2ff 0%, #f6f9ff 40%, #dbeafe 100%);  # noqa: E501
+      }
+      </style>
+  """
+
+  # ❌ Bad - noqa inside string (appears in UI)
+  css_styles = """
+      <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@500;600&display=swap');  # noqa: E501
+      </style>
+  """
+  ```
+
 - **Assertion Messages**: Break long assertion messages:
   ```python
   # ✅ Good
