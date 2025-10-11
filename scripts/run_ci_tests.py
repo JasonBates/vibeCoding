@@ -29,8 +29,6 @@ def run_command(cmd, description):
 
 def check_credentials():
     """Check which credentials are available and valid."""
-    import os
-
     # Load environment variables from .env file
     from dotenv import load_dotenv
 
@@ -48,7 +46,6 @@ def check_credentials():
     if supabase_url and supabase_key:
         try:
             # Add current directory to Python path for imports
-            import os
             import sys
             from pathlib import Path
 
@@ -203,8 +200,6 @@ def main():
         print("   In local development, add them to .env file")
 
         # In CI, we should fail. In local dev, we might want to be more lenient
-        import os
-
         if os.getenv("GITHUB_ACTIONS"):
             print("   This is running in GitHub Actions - failing build")
             all_passed = False
