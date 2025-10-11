@@ -1,6 +1,6 @@
-#!/usr/bin/env python3.
+#!/usr/bin/env python3
 """
-CI Test Runner for GitHub Actions
+CI Test Runner for GitHub Actions.
 
 This script runs the appropriate tests based on available credentials and environment.
 It's designed to be used in GitHub Actions workflows and can also be run locally.

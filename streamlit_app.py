@@ -319,8 +319,8 @@ def main() -> None:
             """
             <div class="hero-text">
                 <h1>LLM Haiku Generator</h1>
-                <p>Summon bespoke 5-7-5 verses that capture the essence of your chosen subject.</p>
-                <p>Type a subject, press Enter, and enjoy a refined haiku in seconds.</p>
+                <p>Summon bespoke 5-7-5 verses that capture the essence of your chosen subject.</p>  # noqa: E501
+                <p>Type a subject, press Enter, and enjoy a refined haiku in seconds.</p>  # noqa: E501
             </div>
             """,
             unsafe_allow_html=True,

@@ -54,7 +54,7 @@ class TestSupabaseIntegration:
         test_text = (
             text
             if text != "Test haiku"
-            else f"Test haiku line one\nTest haiku line two\nTest haiku line three"
+            else "Test haiku line one\nTest haiku line two\nTest haiku line three"
         )
 
         saved_haiku = storage_service.save_haiku(test_subject, test_text)

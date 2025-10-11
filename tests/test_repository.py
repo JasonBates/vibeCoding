@@ -30,7 +30,9 @@ class TestHaikuRepository:
         """Sample haiku for testing."""
         return Haiku(
             subject="coffee morning",
-            haiku_text="Silent mind explored\nBound in trials of unknown\nTruth in quiet waits",
+            haiku_text=(
+                "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+            ),
             id="test-id-123",
             created_at=datetime(2024, 1, 15, 10, 30, 0),
             user_id="user-123",
