@@ -129,7 +129,8 @@ def main():
         if creds["supabase"]:
             coverage_cmd.append("tests/integration/test_supabase_integration.py")
 
-        run_command(coverage_cmd, "Coverage Report")
+        if not run_command(coverage_cmd, "Coverage Report"):
+            all_passed = False
 
     # Final result
     print("\n🎯 Test Results Summary")

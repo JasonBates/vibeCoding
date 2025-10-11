@@ -65,18 +65,20 @@ def format_relative_time(dt: datetime) -> str:
 
 def render_haiku_card(haiku: Haiku) -> None:
     """Render a haiku as a card in the sidebar."""
+    subject_text = html.escape(haiku.subject).upper()
+    haiku_html = html.escape(haiku.haiku_text).replace(chr(10), "<br>")
     with st.container():
         st.markdown(
             f"""
             <div class="haiku-card">
                 <div class="haiku-subject">
-                    {haiku.subject.upper()}
+                    {subject_text}
                 </div>
                 <div class="haiku-timestamp">
                     {format_relative_time(haiku.created_at)}
                 </div>
                 <div class="haiku-text">
-                    {html.escape(haiku.haiku_text).replace(chr(10), '<br>')}
+                    {haiku_html}
                 </div>
             </div>
             """,
