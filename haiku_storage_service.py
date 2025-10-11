@@ -2,9 +2,18 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from supabase import Client, create_client
+try:  # pragma: no cover - exercised indirectly through repository tests
+    from supabase import Client, create_client
+except ModuleNotFoundError:  # pragma: no cover - executed in test environments
+    Client = Any  # type: ignore
+
+    def create_client(*_args: object, **_kwargs: object) -> "Client":  # type: ignore
+        """Fallback client creator that surfaces missing dependency clearly."""
+        raise RuntimeError(
+            "Supabase dependency is not installed. Install 'supabase' to enable storage."
+        )
 
 from models import Haiku
 from repository import HaikuRepository

@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from supabase import Client
+try:  # pragma: no cover - exercised via service tests
+    from supabase import Client
+except ModuleNotFoundError:  # pragma: no cover - executed in test environments
+    Client = Any  # type: ignore
 
 from models import Haiku
 

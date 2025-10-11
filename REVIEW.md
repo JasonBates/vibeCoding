@@ -17,7 +17,7 @@ This review focuses on ways to deepen the learning goals from the README—OpenA
 
 ## 3. CLI & Service Layer Opportunities
 - **Provide a non-interactive path.** `simple_llm_request.py` always prompts via `input()`. Supporting a command-line argument or `--subject` flag would broaden the CLI learning goals and simplify automated testing.【F:simple_llm_request.py†L15-L38】
-- **Share prompt-validation helpers.** Consider moving `_poem_lines` into `haiku_service` (or a new `poetry` module) so both CLI and Streamlit share the same parsing utilities, reinforcing modular design.【F:streamlit_app.py†L27-L31】
+- **Share prompt-validation helpers.** Consider moving `_poem_paragraphs` into `haiku_service` (or a new `poetry` module) so both CLI and Streamlit share the same parsing utilities, reinforcing modular design.【F:streamlit_app.py†L27-L31】
 
 ## 4. Testing Strategy Improvements
 - **Package the project for imports.** Each test manually mutates `sys.path` to import modules, which is a code smell. Turning the repo into an installable package (`pip install -e .`) and importing via `import vibe_coding.haiku_service` clarifies Python packaging fundamentals.【F:tests/test_cli.py†L6-L16】【F:tests/test_streamlit_app.py†L9-L13】【F:tests/test_integration.py†L14-L19】

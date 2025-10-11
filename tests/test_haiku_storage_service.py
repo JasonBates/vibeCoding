@@ -29,11 +29,12 @@ class TestHaikuStorageService:
 
     @pytest.fixture
     def sample_haiku(self):
-        """Sample haiku for testing."""
+        """Sample poem for testing."""
         return Haiku(
             subject="coffee morning",
             haiku_text=(
-                "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+                "Silent mind explored in hush of dawn. Dreams wander through lavender air. We breathe the promise of morning.\n\n"
+                "Moonlight drifts across the quiet lake. Memories ripple in silver whispers. We hold the night between our hands."
             ),
             id="test-id-123",
             created_at=datetime(2024, 1, 15, 10, 30, 0),
@@ -46,13 +47,13 @@ class TestHaikuStorageService:
         mock_repository.save.return_value = sample_haiku
 
         # Test save
-        result = service.save_haiku("coffee morning", "test haiku text")
+        result = service.save_haiku("coffee morning", "test poem text")
 
         # Verify calls
         mock_repository.save.assert_called_once()
         saved_haiku = mock_repository.save.call_args[0][0]
         assert saved_haiku.subject == "coffee morning"
-        assert saved_haiku.haiku_text == "test haiku text"
+        assert saved_haiku.haiku_text == "test poem text"
 
         # Verify result
         assert result == sample_haiku
@@ -60,7 +61,7 @@ class TestHaikuStorageService:
     def test_save_haiku_empty_subject(self, service, mock_repository):
         """Test saving haiku with empty subject."""
         # Test save with empty subject
-        result = service.save_haiku("", "test haiku text")
+        result = service.save_haiku("", "test poem text")
 
         # Verify repository not called
         mock_repository.save.assert_not_called()
@@ -82,7 +83,7 @@ class TestHaikuStorageService:
     def test_save_haiku_whitespace_only(self, service, mock_repository):
         """Test saving haiku with whitespace-only inputs."""
         # Test save with whitespace-only subject
-        result = service.save_haiku("   ", "test haiku text")
+        result = service.save_haiku("   ", "test poem text")
         assert result is None
 
         # Test save with whitespace-only text
@@ -98,7 +99,7 @@ class TestHaikuStorageService:
         mock_repository.save.side_effect = Exception("Database error")
 
         # Test save
-        result = service.save_haiku("coffee morning", "test haiku text")
+        result = service.save_haiku("coffee morning", "test poem text")
 
         # Verify result
         assert result is None
