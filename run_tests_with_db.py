@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Test runner script that loads environment variables and runs all tests.
+
 This ensures integration tests can access Supabase credentials.
 """
 

@@ -41,6 +41,8 @@ jobs:
     - name: Run tests (as part of pre-commit)
       env:
         OPENAI_API_KEY: test-key-for-mocking
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
         # Run tests using the CI test runner
         python scripts/run_ci_tests.py
