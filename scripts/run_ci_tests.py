@@ -29,6 +29,8 @@ def run_command(cmd, description):
 
 def check_credentials():
     """Check which credentials are available and valid."""
+    import os
+
     # Load environment variables from .env file
     from dotenv import load_dotenv
 
