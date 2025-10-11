@@ -1,4 +1,4 @@
-"""Tests for the CLI haiku generator."""
+"""Tests for the CLI poem generator."""
 
 import io
 
@@ -38,12 +38,14 @@ class TestCLI:
 
             assert call_args[1]["model"] == "gpt-4o-mini"
             assert "test subject" in call_args[1]["messages"][0]["content"]
-            assert "haiku" in call_args[1]["messages"][0]["content"].lower()
-            assert "5-7-5" in call_args[1]["messages"][0]["content"]
+            prompt_content = call_args[1]["messages"][0]["content"].lower()
+            assert "poem" in prompt_content
+            assert "two distinct paragraphs" in prompt_content
+            assert "blank line" in prompt_content
 
             # Verify output
             output = captured_output.getvalue()
-            assert "Generated haiku:" in output
+            assert "Generated poem:" in output
             assert "Silent mind explored" in output
 
     def test_main_with_default_subject(
@@ -99,12 +101,11 @@ class TestCLI:
             prompt = call_args[1]["messages"][0]["content"]
 
             # Check prompt components
-            assert "English haiku" in prompt
-            assert "three lines" in prompt
-            assert "5-7-5 syllable pattern" in prompt
+            assert "English poem" in prompt
+            assert "two distinct paragraphs" in prompt
+            assert "three sentences" in prompt
             assert test_subject in prompt
-            assert "Return the haiku as three lines" in prompt
-            assert "each line on its own line" in prompt
+            assert "Return the poem as exactly two paragraphs" in prompt
 
     def test_output_formatting(self, mock_env_vars, mock_openai_client, sample_haiku):
         """Test that output is formatted correctly."""
@@ -123,9 +124,9 @@ class TestCLI:
             output = captured_output.getvalue()
 
             # Check output format
-            assert "Generated haiku:" in output
+            assert "Generated poem:" in output
             assert "Silent mind explored" in output
-            assert "Bound in trials of unknown" in output
-            assert "Truth in quiet waits" in output
+            assert "lavender air" in output
+            assert "silver whispers" in output
             # Should not contain pipe separators
             assert "|" not in output

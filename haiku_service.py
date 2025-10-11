@@ -1,4 +1,4 @@
-"""Shared helpers for generating haikus with the OpenAI Chat Completions API."""
+"""Shared helpers for generating two-paragraph poems with OpenAI API."""
 from __future__ import annotations
 
 import os
@@ -9,9 +9,10 @@ from openai import OpenAI
 DEFAULT_SUBJECT = "quiet mornings"
 MODEL_NAME = "gpt-4o-mini"
 PROMPT_TEMPLATE = (
-    "Write an English haiku (three lines, 5-7-5 syllable pattern) "
-    "about the following subject: {subject}. "
-    "Return the haiku as three lines, each line on its own line."
+    "Write an English poem in two distinct paragraphs about the following "
+    "subject: {subject}. Each paragraph should contain exactly three "
+    "sentences and feel vivid yet concise. Return the poem as exactly two "
+    "paragraphs separated by a single blank line."
 )
 
 
@@ -39,12 +40,12 @@ def get_client(api_key: str | None = None) -> OpenAI:
 
 
 def build_prompt(subject: str) -> str:
-    """Return the haiku prompt for the given subject."""
+    """Return the poem prompt for the given subject."""
     return PROMPT_TEMPLATE.format(subject=subject)
 
 
 def generate_haiku(client: OpenAI, subject: str) -> str:
-    """Request a haiku for the subject using the provided client."""
+    """Request a two-paragraph poem for the subject using the provided client."""
     prompt = build_prompt(subject)
     response = client.chat.completions.create(
         model=MODEL_NAME,

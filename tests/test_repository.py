@@ -27,11 +27,15 @@ class TestHaikuRepository:
 
     @pytest.fixture
     def sample_haiku(self):
-        """Sample haiku for testing."""
+        """Sample poem for testing."""
         return Haiku(
             subject="coffee morning",
             haiku_text=(
-                "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+                "Silent mind explored in hush of dawn. Dreams wander through lavender "
+                "air. "
+                "We breathe the promise of morning.\n\n"
+                "Moonlight drifts across the quiet lake. Memories ripple in silver "
+                "whispers. We hold the night between our hands."
             ),
             id="test-id-123",
             created_at=datetime(2024, 1, 15, 10, 30, 0),
@@ -86,14 +90,24 @@ class TestHaikuRepository:
             {
                 "id": "id1",
                 "subject": "morning",
-                "haiku_text": "Line 1\nLine 2\nLine 3",
+                "haiku_text": (
+                    "Morning sun stretches. Coffee aroma dances. Gentle hum "
+                    "returns.\n\n"
+                    "We trade quiet smiles. Ideas warm the room. Daybreak softly "
+                    "blooms."
+                ),
                 "created_at": "2024-01-15T10:30:00Z",
                 "user_id": "user1",
             },
             {
                 "id": "id2",
                 "subject": "evening",
-                "haiku_text": "Evening 1\nEvening 2\nEvening 3",
+                "haiku_text": (
+                    "Evening lamps awaken. Shadows braid the walls. "
+                    "Crickets stitch the hush.\n\n"
+                    "We gather worn stories. Laughter glows in amber. "
+                    "Night embraces slow."
+                ),
                 "created_at": "2024-01-15T11:30:00Z",
                 "user_id": "user2",
             },
@@ -135,7 +149,7 @@ class TestHaikuRepository:
             {
                 "id": "id1",
                 "subject": "coffee morning",
-                "haiku_text": "Coffee haiku",
+                "haiku_text": "Coffee poem",
                 "created_at": "2024-01-15T10:30:00Z",
                 "user_id": "user1",
             }
@@ -178,7 +192,7 @@ class TestHaikuRepository:
             {
                 "id": "test-id",
                 "subject": "test subject",
-                "haiku_text": "test haiku",
+                "haiku_text": "test poem",
                 "created_at": "2024-01-15T10:30:00Z",
                 "user_id": "user1",
             }

@@ -1,4 +1,4 @@
-"""Integration tests for the haiku generator."""
+"""Integration tests for the poem generator."""
 
 import os
 import shutil
@@ -13,14 +13,14 @@ import pytest
 
 from haiku_service import MissingAPIKeyError
 from simple_llm_request import main
-from streamlit_app import _poem_lines, generate_poem
+from streamlit_app import _poem_paragraphs, generate_poem
 
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class TestIntegration:
-    """Integration tests for the haiku generator."""
+    """Integration tests for the poem generator."""
 
     def test_cli_and_streamlit_consistency(self, mock_env_vars, sample_subject):
         """Test that CLI and Streamlit generate consistent prompts."""
@@ -28,9 +28,12 @@ class TestIntegration:
         mock_response = Mock()
         mock_response.choices = [Mock()]
         mock_response.choices[0].message = Mock()
-        mock_response.choices[
-            0
-        ].message.content = "Test haiku line 1\nTest haiku line 2\nTest haiku line 3"
+        mock_response.choices[0].message.content = (
+            "Paragraph one sentence. Second thought lives here. "
+            "Third idea sparkles.\n\n"
+            "Paragraph two grows. Another line unfolds. "
+            "Final cadence settles."
+        )
 
         # Test CLI prompt generation
         with patch("haiku_service.get_client", return_value=mock_client):
@@ -59,34 +62,37 @@ class TestIntegration:
         # Both should contain the same key elements
         assert sample_subject in cli_prompt
         assert sample_subject in streamlit_prompt
-        assert "haiku" in cli_prompt.lower()
-        assert "haiku" in streamlit_prompt.lower()
-        assert "5-7-5" in cli_prompt
-        assert "5-7-5" in streamlit_prompt
-        assert "three lines" in cli_prompt
-        assert "three lines" in streamlit_prompt
+        assert "poem" in cli_prompt.lower()
+        assert "poem" in streamlit_prompt.lower()
+        assert "two distinct paragraphs" in cli_prompt.lower()
+        assert "two distinct paragraphs" in streamlit_prompt.lower()
+        assert "blank line" in cli_prompt.lower()
+        assert "blank line" in streamlit_prompt.lower()
 
     def test_poem_parsing_consistency(self):
         """Test that poem parsing works consistently across formats."""
-        test_haikus = [
-            "Line one\nLine two\nLine three",
-            "Line one\n\nLine two\nLine three",
-            "  Line one  \n  Line two  \n  Line three  ",
-            "Line one\n   \nLine two\n\nLine three",
+        test_poems = [
+            "Paragraph one sentence. Another sentence. Third idea.\n\n"
+            "Paragraph two sentence. Extra thought. Closing line.",
+            "Paragraph one sentence.\n\n\nParagraph two sentence.",
+            "  Paragraph one sentence.  Another.  Third.  \n\n  "
+            "Paragraph two sentence.  Extra.  Closing.  ",
+            "Paragraph one sentence.   \n\nParagraph two sentence.\n\n",
         ]
 
-        for haiku in test_haikus:
-            result = _poem_lines(haiku)
+        for poem in test_poems:
+            result = _poem_paragraphs(poem)
 
-            # Should always return exactly 3 lines
-            assert len(result) == 3, f"Failed for haiku: {repr(haiku)}"
+            # Should always return up to two meaningful paragraphs
+            assert len(result) <= 2, f"Failed for poem: {repr(poem)}"
+            assert len(result) >= 1
 
-            # Lines should be trimmed
-            for line in result:
-                assert line == line.strip(), "Lines should be trimmed"
+            # Paragraphs should be trimmed
+            for paragraph in result:
+                assert paragraph == paragraph.strip(), "Paragraphs should be trimmed"
 
-            # Should not contain empty lines
-            assert "" not in result, "Should not contain empty lines"
+            # Should not contain empty paragraphs
+            assert "" not in result, "Should not contain empty paragraphs"
 
     def test_error_handling_consistency(self):
         """Test that both interfaces handle errors consistently."""
@@ -131,7 +137,7 @@ class TestIntegration:
         mock_response = Mock()
         mock_response.choices = [Mock()]
         mock_response.choices[0].message = Mock()
-        mock_response.choices[0].message.content = "Test haiku"
+        mock_response.choices[0].message.content = "Test poem"
 
         # Test CLI model
         with patch("haiku_service.get_client", return_value=mock_client):

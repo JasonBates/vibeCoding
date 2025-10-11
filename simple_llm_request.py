@@ -13,18 +13,17 @@ import haiku_service
 
 
 def main() -> int:
-    """Fetch an English haiku from a GPT-4.1 model and print it."""
+    """Fetch a two-paragraph English poem from a GPT-4.1 model and print it."""
     # Get subject from user input or use default
     subject = (
-        input("Enter a subject for the haiku: ").strip()
-        or haiku_service.DEFAULT_SUBJECT
+        input("Enter a subject for the poem: ").strip() or haiku_service.DEFAULT_SUBJECT
     )
 
     try:
         client = haiku_service.get_client()
         response_text = haiku_service.generate_haiku(client, subject)
 
-        print("\nGenerated haiku:\n")
+        print("\nGenerated poem:\n")
         print(response_text)
 
     except haiku_service.MissingAPIKeyError as exc:

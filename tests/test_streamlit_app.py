@@ -1,4 +1,4 @@
-"""Tests for the Streamlit haiku generator app."""
+"""Tests for the Streamlit poem generator app."""
 
 import os
 import sys
@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from haiku_service import MissingAPIKeyError
-from streamlit_app import _poem_lines, generate_poem, get_client
+from streamlit_app import _poem_paragraphs, generate_poem, get_client
 
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -60,50 +60,60 @@ class TestStreamlitApp:
 
         assert call_args[1]["model"] == "gpt-4o-mini"
         assert sample_subject in call_args[1]["messages"][0]["content"]
-        assert "haiku" in call_args[1]["messages"][0]["content"].lower()
-        assert "5-7-5" in call_args[1]["messages"][0]["content"]
-        assert (
-            "Return the haiku as three lines" in call_args[1]["messages"][0]["content"]
-        )
+        prompt_content = call_args[1]["messages"][0]["content"].lower()
+        assert "poem" in prompt_content
+        assert "two distinct paragraphs" in prompt_content
+        assert "blank line" in prompt_content
 
         # Verify return value
         assert result == mock_api_response.choices[0].message.content
 
-    def test_poem_lines_with_newlines(self, sample_haiku):
-        """Test _poem_lines with newline-separated haiku."""
-        result = _poem_lines(sample_haiku)
+    def test_poem_paragraphs_with_blank_line(self, sample_haiku):
+        """Test _poem_paragraphs with blank-line-separated paragraphs."""
+        result = _poem_paragraphs(sample_haiku)
 
         expected = [
-            "Silent mind explored",
-            "Bound in trials of unknown",
-            "Truth in quiet waits",
+            "Silent mind explored in hush of dawn. Dreams wander through lavender air. "
+            "We breathe the promise of morning.",
+            "Moonlight drifts across the quiet lake. Memories ripple in silver "
+            "whispers. "
+            "We hold the night between our hands.",
         ]
         assert result == expected
 
-    def test_poem_lines_with_empty_lines(self):
-        """Test _poem_lines with empty lines."""
-        haiku_with_empty = "Line one\n\nLine two\n   \nLine three"
-        result = _poem_lines(haiku_with_empty)
+    def test_poem_paragraphs_with_extra_spacing(self):
+        """Test _poem_paragraphs removes empty paragraphs and trims spacing."""
+        poem_with_extra = (
+            " First paragraph sentence one.  Sentence two.  Sentence three. \n\n"
+            "\n"
+            " Second paragraph grows in moonlight. Another sentence forms. "
+            "Closing thought blooms. "
+        )
+        result = _poem_paragraphs(poem_with_extra)
 
-        expected = ["Line one", "Line two", "Line three"]
+        expected = [
+            "First paragraph sentence one.  Sentence two.  Sentence three.",
+            "Second paragraph grows in moonlight. Another sentence forms. "
+            "Closing thought blooms.",
+        ]
         assert result == expected
 
-    def test_poem_lines_with_single_line(self):
-        """Test _poem_lines with single line (fallback)."""
-        single_line = "This is a single line haiku"
-        result = _poem_lines(single_line)
+    def test_poem_paragraphs_with_single_block(self):
+        """Test _poem_paragraphs with single block (fallback)."""
+        single_block = "This is a single paragraph poem"
+        result = _poem_paragraphs(single_block)
 
-        assert result == [single_line]
+        assert result == ["This is a single paragraph poem"]
 
-    def test_poem_lines_with_empty_input(self):
-        """Test _poem_lines with empty input."""
-        result = _poem_lines("")
+    def test_poem_paragraphs_with_empty_input(self):
+        """Test _poem_paragraphs with empty input."""
+        result = _poem_paragraphs("")
         assert result == [""]
 
-    def test_poem_lines_with_whitespace_only(self):
-        """Test _poem_lines with whitespace-only lines."""
-        haiku_with_whitespace = "Line one\n   \n  \nLine two"
-        result = _poem_lines(haiku_with_whitespace)
+    def test_poem_paragraphs_with_whitespace_only(self):
+        """Test _poem_paragraphs removes whitespace-only paragraphs."""
+        poem_with_whitespace = "Line one\n   \n  \n\nLine two"
+        result = _poem_paragraphs(poem_with_whitespace)
 
         expected = ["Line one", "Line two"]
         assert result == expected
@@ -121,8 +131,8 @@ class TestStreamlitApp:
         prompt = call_args[1]["messages"][0]["content"]
 
         # Check prompt components
-        assert "Write an English haiku" in prompt
-        assert "three lines, 5-7-5 syllable pattern" in prompt
+        assert "Write an English poem" in prompt
+        assert "two distinct paragraphs" in prompt
         assert f"about the following subject: {test_subject}." in prompt
-        assert "Return the haiku as three lines" in prompt
-        assert "each line on its own line" in prompt
+        assert "Return the poem as exactly two paragraphs" in prompt
+        assert "blank line" in prompt

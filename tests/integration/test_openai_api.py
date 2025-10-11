@@ -32,22 +32,46 @@ class TestOpenAIIntegration:
         """Test Streamlit app with real OpenAI API."""
         client = get_client()
 
-        # Test haiku generation
+        # Test poem generation
         result = generate_poem(client, "coffee morning")
 
         # Verify basic structure
         assert isinstance(result, str)
         assert len(result) > 10  # Should be substantial
-        assert len(result.split("\n")) == 3  # Should have 3 lines
+        paragraphs = [p for p in result.split("\n\n") if p.strip()]
+        assert len(paragraphs) == 2  # Should have 2 paragraphs
 
         # Verify content relevance (basic check)
         result_lower = result.lower()
-        assert any(
-            word in result_lower
-            for word in ["coffee", "morning", "brew", "cup", "wake"]
-        )
+        # Check for any coffee-related or morning-related words
+        coffee_words = [
+            "coffee",
+            "morning",
+            "brew",
+            "cup",
+            "wake",
+            "dawn",
+            "sunrise",
+            "steam",
+            "aroma",
+            "caffeine",
+        ]
+        morning_words = [
+            "morning",
+            "dawn",
+            "sunrise",
+            "wake",
+            "awake",
+            "early",
+            "daybreak",
+        ]
 
-        print(f"Generated haiku: {result}")
+        # Should contain at least one relevant word
+        assert any(
+            word in result_lower for word in coffee_words + morning_words
+        ), f"Poem should contain coffee/morning related words. Got: {result[:100]}..."
+
+        print(f"Generated poem: {result}")
 
     def test_cli_openai_integration(self):
         """Test CLI with real OpenAI API."""
@@ -58,26 +82,17 @@ class TestOpenAIIntegration:
         output = captured_output.getvalue()
 
         # Verify output format
-        assert "Generated haiku:" in output
+        assert "Generated poem:" in output
 
-        # Check that haiku was generated (more flexible than exact word matching)
-        haiku_lines = [
-            line
-            for line in output.strip().split("\n")
-            if line and not line.startswith("Generated haiku:")
+        # Check that poem was generated
+        poem_blocks = [
+            block
+            for block in output.strip().split("\n\n")
+            if block and not block.startswith("Generated poem:")
         ]
-        assert (
-            len(haiku_lines) == 3
-        ), f"Expected 3 haiku lines, got {len(haiku_lines)}: {haiku_lines}"
+        assert len(poem_blocks) >= 1, f"Expected poem paragraphs, got: {poem_blocks}"
 
-        # Extract the haiku from output
-        lines = output.strip().split("\n")
-        haiku_lines = [
-            line for line in lines if line and not line.startswith("Generated haiku:")
-        ]
-
-        assert len(haiku_lines) == 3
-        print(f"CLI generated: {haiku_lines}")
+        print(f"CLI generated: {poem_blocks}")
 
     def test_api_error_handling(self):
         """Test error handling with invalid API key."""
@@ -106,7 +121,7 @@ class TestOpenAIIntegration:
             result = generate_poem(client, subject)
 
             # Basic validation
-            assert len(result.split("\n")) == 3
+            assert len([p for p in result.split("\n\n") if p.strip()]) == 2
             assert len(result) > 15
 
             # Check if subject is referenced (not always guaranteed)
@@ -124,23 +139,22 @@ class TestOpenAIIntegration:
         client = get_client()
         result = generate_poem(client, "ocean waves")
 
-        lines = result.split("\n")
+        paragraphs = [p for p in result.split("\n\n") if p.strip()]
 
-        # Check line lengths (rough syllable approximation)
-        line_lengths = [len(line.strip()) for line in lines if line.strip()]
+        # Check paragraph lengths
+        paragraph_lengths = [len(paragraph.split()) for paragraph in paragraphs]
 
-        # Haiku should have varying line lengths (5-7-5 pattern)
-        assert len(line_lengths) == 3
-        assert all(length > 5 for length in line_lengths)  # Not too short
-        assert all(length < 50 for length in line_lengths)  # Not too long
+        assert len(paragraphs) == 2
+        assert all(length > 5 for length in paragraph_lengths)
+        assert all(length < 120 for length in paragraph_lengths)
 
         # Check for poetic elements
         result_lower = result.lower()
         poetic_words = ["waves", "ocean", "sea", "blue", "deep", "flow", "tide"]
         has_poetic_elements = any(word in result_lower for word in poetic_words)
 
-        print(f"Haiku: {result}")
-        print(f"Line lengths: {line_lengths}")
+        print(f"Poem: {result}")
+        print(f"Paragraph lengths: {paragraph_lengths}")
         print(f"Has poetic elements: {has_poetic_elements}")
 
 

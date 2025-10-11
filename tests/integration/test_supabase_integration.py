@@ -22,9 +22,19 @@ class TestSupabaseIntegration:
         supabase_key = os.getenv("SUPABASE_KEY")
 
         if not supabase_url or not supabase_key:
-            pytest.skip("Supabase credentials not configured")
+            pytest.fail(
+                "Supabase credentials not configured - "
+                "SUPABASE_URL and SUPABASE_KEY required"
+            )
 
-        return HaikuStorageService(supabase_url, supabase_key)
+        # Create service and check if it's actually available
+        service = HaikuStorageService(supabase_url, supabase_key)
+        if not service.is_available():
+            pytest.fail(
+                "Supabase service not available - check your credentials and connection"
+            )
+
+        return service
 
     @pytest.fixture
     def test_haiku_ids(self):
@@ -195,8 +205,12 @@ class TestSupabaseIntegration:
         # Get count after adding haiku
         new_count = storage_service.get_total_count()
 
-        # Count should have increased by 1
-        assert new_count == initial_count + 1
+        # Count should have increased by at least 1
+        # (Other tests may also be creating haikus concurrently)
+        assert new_count >= initial_count + 1, (
+            f"Expected count to increase by at least 1, "
+            f"but got {new_count} (was {initial_count})"
+        )
 
     def test_save_haiku_with_user_id(self, storage_service, test_haiku_ids):
         """Test saving haiku with user ID."""

@@ -1,0 +1,245 @@
+# Cursor Rules for vibeCoding Project
+
+## 🐍 Virtual Environment (CRITICAL)
+- ALWAYS activate the virtual environment before running any Python commands
+- The virtual environment is located at `.venv/` in the project root
+- Use `source .venv/bin/activate` before running any Python scripts, tests, or package installations
+- This is critical for the project to work correctly and prevents dependency conflicts
+
+## 📁 Project Architecture
+- **Type**: Python Streamlit application with OpenAI API integration
+- **Database**: Supabase for haiku storage and retrieval
+- **Testing**: Comprehensive test suite (unit, integration, CI/CD)
+- **Code Quality**: Pre-commit hooks with black, isort, flake8, pytest
+- **Structure**: Modular design with separate services, models, and repository layers
+
+## 🚀 Development Workflow
+### Essential Commands (always activate venv first)
+```bash
+# Activate environment
+source .venv/bin/activate
+
+# Run tests
+python3 scripts/run_ci_tests.py  # Full CI test suite
+pytest                          # Quick test run
+
+# Run application
+streamlit run streamlit_app.py
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### String Length Prevention Workflow
+1. **Before writing any string** - estimate if it will exceed 88 characters
+2. **If long, break immediately** - don't wait for linting to catch it
+3. **Use parentheses for concatenation** - `("part1" "part2")` not `"part1" + "part2"`
+4. **Break at logical points** - commas, conjunctions, natural pauses
+5. **Test strings are priority** - they're often the longest
+6. **Error messages** - informative but concise, break if needed
+7. **Always run pre-commit** - catches any missed long lines
+
+## 🔒 Security Best Practices
+- **Input Sanitization**: Always escape user input before HTML rendering (use `html.escape()`)
+- **Secrets Management**: Store API keys in `.env` file, never hardcode credentials
+- **XSS Prevention**: Validate and escape all user-provided data before display
+- **SQL Injection**: Use parameterized queries when interacting with Supabase
+- **Environment Variables**: Use `os.getenv()` for configuration, never hardcode sensitive data
+
+## 🎨 Streamlit Best Practices
+- **Caching**: Use `@st.cache_data` for expensive computations and API calls
+- **Session State**: Use `st.session_state` for maintaining state across reruns
+- **Error Handling**: Implement try-catch blocks for API calls and user interactions
+- **UI Components**: Use `st.container()` for better layout control
+- **Performance**: Minimize reruns by using `st.rerun()` strategically
+- **Secrets**: Access Supabase credentials via `st.secrets` when available
+
+## 🗄️ Supabase Integration
+- **Connection**: Use environment variables for URL and key configuration
+- **Error Handling**: Always check if storage service is available before operations
+- **Data Validation**: Validate haiku data before saving to database
+- **Repository Pattern**: Use the repository layer for all database operations
+- **Testing**: Mock Supabase calls in unit tests, use real connection in integration tests
+
+## 🧪 Testing Strategy
+- **Unit Tests**: Test individual functions and classes in isolation
+- **Integration Tests**: Test API integrations and database operations
+- **CI Tests**: Run full test suite with coverage reporting
+- **Mocking**: Use `unittest.mock` for external dependencies
+- **Coverage**: Maintain minimum 60% test coverage
+- **Test Data**: Use fixtures and factories for consistent test data
+
+## 📊 CI/CD Pipeline
+- **Pre-commit**: Code formatting, linting, and basic tests
+- **GitHub Actions**: Automated testing on push/PR
+- **Coverage**: Fail builds if coverage drops below threshold
+- **Security**: Check for vulnerabilities in dependencies
+- **Quality Gates**: All tests must pass before merge
+
+## 🏗️ Code Architecture
+- **Separation of Concerns**: Keep UI, business logic, and data access separate
+- **Service Layer**: Use service classes for business logic (e.g., `HaikuService`)
+- **Repository Pattern**: Abstract data access behind repository interfaces
+- **Model Classes**: Use Pydantic or dataclasses for data validation
+- **Error Handling**: Implement custom exceptions for different error types
+
+## 📝 Code Quality Standards
+- **Style**: Follow PEP 8, use black for formatting
+- **Line Length**: Keep lines under 88 characters (flake8 limit)
+- **Long Strings**: Break long strings across multiple lines using parentheses
+- **Imports**: Use isort for import organization
+- **Linting**: Use flake8 for code quality checks
+- **Type Hints**: Use type annotations for better code documentation
+- **Docstrings**: Write clear docstrings for all public functions
+- **Comments**: Explain complex business logic, not obvious code
+
+## 🔧 Development Tools
+- **Pre-commit**: Automated code quality checks
+- **Pytest**: Testing framework with fixtures and parametrization
+- **Coverage**: Code coverage measurement and reporting
+- **Black**: Code formatting
+- **isort**: Import sorting
+- **flake8**: Linting and style checking
+
+## 🚨 Common Pitfalls to Avoid
+- **Never run Python commands without activating venv**
+- **Don't hardcode API keys or sensitive data**
+- **Always escape user input before HTML rendering**
+- **Don't commit without running tests**
+- **Avoid direct database queries in UI components**
+- **Don't ignore pre-commit hook failures**
+- **Always handle exceptions gracefully**
+
+## 📏 Linting Prevention Guidelines
+- **Line Length**: Always keep lines under 88 characters
+- **Long Strings**: Break test data and long strings like this:
+  ```python
+  # ✅ Good
+  haiku_text=(
+      "First part of the string. Second part continues. "
+      "Third part completes the thought.\n\n"
+      "Second paragraph starts here. Another line. "
+      "Final line ends here."
+  )
+
+  # ❌ Bad
+  haiku_text="Very long string that exceeds 88 characters and will fail flake8 checks"
+  ```
+
+### String Breaking Patterns
+- **Error Messages**: Break long error messages:
+  ```python
+  # ✅ Good
+  pytest.fail(
+      "Supabase credentials not configured - "
+      "SUPABASE_URL and SUPABASE_KEY required"
+  )
+
+  # ❌ Bad
+  pytest.fail("Supabase credentials not configured - SUPABASE_URL and SUPABASE_KEY required")
+  ```
+
+- **Assertion Messages**: Break long assertion messages:
+  ```python
+  # ✅ Good
+  assert any(word in result_lower for word in coffee_words), (
+      f"Poem should contain coffee/morning related words. "
+      f"Got: {result[:100]}..."
+  )
+
+  # ❌ Bad
+  assert any(word in result_lower for word in coffee_words), f"Poem should contain coffee/morning related words. Got: {result[:100]}..."
+  ```
+
+- **Print Statements**: Break long print statements:
+  ```python
+  # ✅ Good
+  print(
+      "❌ Supabase integration tests require valid credentials"
+  )
+  print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
+
+  # ❌ Bad
+  print("❌ Supabase integration tests require valid credentials. Set SUPABASE_URL and SUPABASE_KEY environment variables")
+  ```
+
+- **Function Arguments**: Break long function calls:
+  ```python
+  # ✅ Good
+  if not run_command(
+      [
+          "pytest",
+          "tests/integration/test_supabase_integration.py",
+          "-v",
+          "--tb=short",
+      ],
+      "Supabase Integration Tests",
+  ):
+      all_passed = False
+
+  # ❌ Bad
+  if not run_command(["pytest", "tests/integration/test_supabase_integration.py", "-v", "--tb=short"], "Supabase Integration Tests"):
+      all_passed = False
+  ```
+
+- **Dictionary/List Definitions**: Break long data structures:
+  ```python
+  # ✅ Good
+  coffee_words = [
+      "coffee", "morning", "brew", "cup", "wake",
+      "dawn", "sunrise", "steam", "aroma", "caffeine"
+  ]
+
+  # ❌ Bad
+  coffee_words = ["coffee", "morning", "brew", "cup", "wake", "dawn", "sunrise", "steam", "aroma", "caffeine"]
+  ```
+
+### Proactive String Management
+- **Always check string length** before writing - if it looks long, break it immediately
+- **Use parentheses for string concatenation** - never use `+` for long strings
+- **Break at logical points** - after commas, before conjunctions, at natural pauses
+- **Test strings in particular** - they're often the longest and most problematic
+- **Error messages** - keep them informative but concise, break if needed
+- **Comments** - break long comments across multiple lines
+- **Docstrings** - keep them concise, break long ones
+- **Import Statements**: Let isort handle import organization
+- **Function Calls**: Break long function calls across multiple lines
+
+### Quick Reference
+- **88 character limit** - always check before writing
+- **Parentheses for concatenation** - `("string1" "string2")` not `"string1" + "string2"`
+- **Break at logical points** - commas, conjunctions, natural pauses
+- **Test data is often long** - be extra careful with test strings
+- **Error messages** - informative but concise
+
+## 📋 Pre-commit Checklist
+1. ✅ Activate virtual environment
+2. ✅ Run `pre-commit run --all-files` to check formatting
+3. ✅ Run `python3 scripts/run_ci_tests.py`
+4. ✅ Check for security vulnerabilities
+5. ✅ Verify all tests pass
+6. ✅ Ensure code follows style guidelines
+7. ✅ Update documentation if needed
+
+## 🔄 Pre-commit Workflow
+- **Before committing**: Always run `pre-commit run --all-files`
+- **If hooks fail**: Fix the issues and run again
+- **Common fixes**:
+  - Run `pre-commit run black --all-files` for formatting
+  - Run `pre-commit run flake8 --all-files` for linting
+  - Run `pre-commit run isort --all-files` for imports
+- **Never commit with failing hooks**: Fix all issues first
+
+## 🎯 Performance Optimization
+- **Caching**: Cache expensive operations and API responses
+- **Lazy Loading**: Load data only when needed
+- **Connection Pooling**: Reuse database connections
+- **Memory Management**: Clean up large objects and temporary data
+- **Async Operations**: Use async/await for I/O operations when possible
+
+## 🔍 Debugging Guidelines
+- **Logging**: Use Python's logging module for debugging
+- **Error Messages**: Provide clear, actionable error messages
+- **Stack Traces**: Include relevant context in error handling
+- **Testing**: Write tests that reproduce bugs before fixing them
+- **Documentation**: Document known issues and workarounds

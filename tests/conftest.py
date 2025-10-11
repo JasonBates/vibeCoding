@@ -14,24 +14,28 @@ def mock_openai_client():
     return client
 
 
+POEM_TEXT = (
+    "Silent mind explored in hush of dawn. Dreams wander through lavender air. "
+    "We breathe the promise of morning.\n\n"
+    "Moonlight drifts across the quiet lake. Memories ripple in silver whispers. "
+    "We hold the night between our hands."
+)
+
+
 @pytest.fixture
 def mock_api_response():
-    """Mock API response for haiku generation."""
+    """Mock API response for poem generation."""
     response = Mock()
     response.choices = [Mock()]
     response.choices[0].message = Mock()
-    response.choices[
-        0
-    ].message.content = (
-        "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
-    )
+    response.choices[0].message.content = POEM_TEXT
     return response
 
 
 @pytest.fixture
 def sample_haiku():
-    """Sample haiku for testing formatting."""
-    return "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
+    """Sample poem for testing formatting."""
+    return POEM_TEXT
 
 
 @pytest.fixture
