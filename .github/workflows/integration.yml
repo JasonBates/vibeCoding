@@ -4,13 +4,10 @@ name: Integration Tests
 # It's separate from the main test workflow to avoid running expensive tests on every push
 
 on:
-  workflow_dispatch:  # Manual trigger only
-  push:
-    branches: [ main, update-app-for-two-paragraph-poem ]
-    paths: [ 'tests/integration/**' ]  # Only when integration tests change
   pull_request:
     branches: [ main ]
-    paths: [ 'tests/integration/**' ]
+    paths: [ 'tests/integration/**' ]  # Only when integration tests change
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   integration-tests:
@@ -38,14 +35,36 @@ jobs:
         pip install -r requirements.txt
 
     - name: Debug environment variables
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
-        echo "Checking environment variables..."
-        echo "OPENAI_API_KEY length: ${#OPENAI_API_KEY}"
-        echo "SUPABASE_URL length: ${#SUPABASE_URL}"
-        echo "SUPABASE_KEY length: ${#SUPABASE_KEY}"
-        echo "OPENAI_API_KEY starts with: ${OPENAI_API_KEY:0:10}..."
-        echo "SUPABASE_URL starts with: ${SUPABASE_URL:0:20}..."
-        echo "SUPABASE_KEY starts with: ${SUPABASE_KEY:0:10}..."
+        echo "=== DEBUGGING SECRETS ==="
+        echo "Checking if secrets are available..."
+
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "❌ OPENAI_API_KEY is NOT set or empty"
+        else
+          echo "✅ OPENAI_API_KEY is set (length: ${#OPENAI_API_KEY})"
+          echo "   Starts with: ${OPENAI_API_KEY:0:10}..."
+        fi
+
+        if [ -z "$SUPABASE_URL" ]; then
+          echo "❌ SUPABASE_URL is NOT set or empty"
+        else
+          echo "✅ SUPABASE_URL is set (length: ${#SUPABASE_URL})"
+          echo "   Starts with: ${SUPABASE_URL:0:20}..."
+        fi
+
+        if [ -z "$SUPABASE_KEY" ]; then
+          echo "❌ SUPABASE_KEY is NOT set or empty"
+        else
+          echo "✅ SUPABASE_KEY is set (length: ${#SUPABASE_KEY})"
+          echo "   Starts with: ${SUPABASE_KEY:0:10}..."
+        fi
+
+        echo "=== END DEBUGGING ==="
 
     - name: Run integration tests
       env:

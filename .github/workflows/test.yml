@@ -1,10 +1,9 @@
 name: Test Suite
 
 on:
-  push:
-    branches: [ main, develop, update-app-for-two-paragraph-poem ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   test:
