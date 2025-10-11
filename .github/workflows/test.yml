@@ -2,7 +2,7 @@ name: Test Suite
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, update-app-for-two-paragraph-poem ]
   pull_request:
     branches: [ main ]
 
