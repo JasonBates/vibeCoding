@@ -113,10 +113,22 @@ def main():
     # Track overall success
     all_passed = True
 
-    # 1. Run unit tests (always run these)
-    print("\n📦 Running Unit Tests")
+    # Build comprehensive test command (run all tests once with coverage)
+    print("\n🧪 Running All Tests with Coverage")
     print("=" * 60)
 
+    # Start with base pytest command
+    test_cmd = [
+        "pytest",
+        "--cov=.",
+        "--cov-report=term-missing",
+        "--cov-report=xml",
+        "--cov-fail-under=60",
+        "-v",
+        "--tb=short",
+    ]
+
+    # Add unit tests (always included)
     unit_tests = [
         "tests/test_cli.py",
         "tests/test_streamlit_app.py",
@@ -125,72 +137,35 @@ def main():
         "tests/test_repository.py",
         "tests/test_haiku_storage_service.py",
     ]
+    test_cmd.extend(unit_tests)
+    print("✅ Including Unit Tests")
 
-    unit_cmd = ["pytest"] + unit_tests + ["-v", "--tb=short"]
-    if not run_command(unit_cmd, "Unit Tests"):
-        all_passed = False
-
-    # 2. Run OpenAI integration tests (if credentials available)
+    # Add integration tests based on available credentials
     if creds["openai"]:
-        print("\n🤖 Running OpenAI Integration Tests")
-        print("=" * 60)
-
-        openai_tests = [
-            "tests/integration/test_openai_api.py",
-            "tests/integration/test_e2e_haiku.py",
-        ]
-
-        openai_cmd = ["pytest"] + openai_tests + ["-v", "--tb=short"]
-        if not run_command(openai_cmd, "OpenAI Integration Tests"):
-            all_passed = False
+        print("✅ Including OpenAI Integration Tests")
+        test_cmd.extend(
+            [
+                "tests/integration/test_openai_api.py",
+                "tests/integration/test_e2e_haiku.py",
+            ]
+        )
     else:
-        print("\n⚠️  Skipping OpenAI Integration Tests (no valid API key)")
-
-    # 3. Run Supabase integration tests (if credentials available)
-    # Run Supabase integration tests - REQUIRED
-    print("\n🗄️  Running Supabase Integration Tests")
-    print("=" * 60)
+        print("⚠️  Skipping OpenAI Integration Tests (no valid API key)")
 
     if creds["supabase"]:
-        supabase_cmd = [
-            "pytest",
-            "tests/integration/test_supabase_integration.py",
-            "-v",
-            "--tb=short",
-        ]
-        if not run_command(supabase_cmd, "Supabase Integration Tests"):
-            all_passed = False
+        print("✅ Including Supabase Integration Tests")
+        test_cmd.append("tests/integration/test_supabase_integration.py")
     else:
         print("❌ Supabase Integration Tests - FAILED (no valid credentials)")
         print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
         all_passed = False
 
-    # 4. Run coverage report (if all tests passed)
+    # Run all tests once with coverage
     if all_passed:
-        print("\n📊 Running Coverage Report")
-        print("=" * 60)
-
-        coverage_cmd = [
-            "pytest",
-            "--cov=.",
-            "--cov-report=term-missing",
-            "--cov-report=xml",
-            "--cov-fail-under=60",  # Lower threshold for unit tests only
-        ] + unit_tests
-
-        if creds["openai"]:
-            coverage_cmd.extend(
-                [
-                    "tests/integration/test_openai_api.py",
-                    "tests/integration/test_e2e_haiku.py",
-                ]
-            )
-
-        if creds["supabase"]:
-            coverage_cmd.append("tests/integration/test_supabase_integration.py")
-
-        if not run_command(coverage_cmd, "Coverage Report"):
+        if not run_command(test_cmd, "All Tests with Coverage"):
             all_passed = False
+    else:
+        print("❌ Skipping test run due to missing Supabase credentials")
 
     # Check Supabase credentials and provide helpful error message
     if not creds["supabase"]:
