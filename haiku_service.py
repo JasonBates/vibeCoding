@@ -1,4 +1,4 @@
-"""Shared helpers for generating two-paragraph poems with the OpenAI Chat Completions API."""
+"""Shared helpers for generating two-paragraph poems with OpenAI API."""
 from __future__ import annotations
 
 import os

@@ -31,8 +31,11 @@ class TestHaikuRepository:
         return Haiku(
             subject="coffee morning",
             haiku_text=(
-                "Silent mind explored in hush of dawn. Dreams wander through lavender air. We breathe the promise of morning.\n\n"
-                "Moonlight drifts across the quiet lake. Memories ripple in silver whispers. We hold the night between our hands."
+                "Silent mind explored in hush of dawn. Dreams wander through lavender "
+                "air. "
+                "We breathe the promise of morning.\n\n"
+                "Moonlight drifts across the quiet lake. Memories ripple in silver "
+                "whispers. We hold the night between our hands."
             ),
             id="test-id-123",
             created_at=datetime(2024, 1, 15, 10, 30, 0),
@@ -88,8 +91,10 @@ class TestHaikuRepository:
                 "id": "id1",
                 "subject": "morning",
                 "haiku_text": (
-                    "Morning sun stretches. Coffee aroma dances. Gentle hum returns.\n\n"
-                    "We trade quiet smiles. Ideas warm the room. Daybreak softly blooms."
+                    "Morning sun stretches. Coffee aroma dances. Gentle hum "
+                    "returns.\n\n"
+                    "We trade quiet smiles. Ideas warm the room. Daybreak softly "
+                    "blooms."
                 ),
                 "created_at": "2024-01-15T10:30:00Z",
                 "user_id": "user1",
@@ -98,8 +103,10 @@ class TestHaikuRepository:
                 "id": "id2",
                 "subject": "evening",
                 "haiku_text": (
-                    "Evening lamps awaken. Shadows braid the walls. Crickets stitch the hush.\n\n"
-                    "We gather worn stories. Laughter glows in amber. Night embraces slow."
+                    "Evening lamps awaken. Shadows braid the walls. "
+                    "Crickets stitch the hush.\n\n"
+                    "We gather worn stories. Laughter glows in amber. "
+                    "Night embraces slow."
                 ),
                 "created_at": "2024-01-15T11:30:00Z",
                 "user_id": "user2",

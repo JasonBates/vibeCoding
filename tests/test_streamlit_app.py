@@ -73,8 +73,11 @@ class TestStreamlitApp:
         result = _poem_paragraphs(sample_haiku)
 
         expected = [
-            "Silent mind explored in hush of dawn. Dreams wander through lavender air. We breathe the promise of morning.",
-            "Moonlight drifts across the quiet lake. Memories ripple in silver whispers. We hold the night between our hands.",
+            "Silent mind explored in hush of dawn. Dreams wander through lavender air. "
+            "We breathe the promise of morning.",
+            "Moonlight drifts across the quiet lake. Memories ripple in silver "
+            "whispers. "
+            "We hold the night between our hands.",
         ]
         assert result == expected
 
@@ -83,13 +86,15 @@ class TestStreamlitApp:
         poem_with_extra = (
             " First paragraph sentence one.  Sentence two.  Sentence three. \n\n"
             "\n"
-            " Second paragraph grows in moonlight. Another sentence forms. Closing thought blooms. "
+            " Second paragraph grows in moonlight. Another sentence forms. "
+            "Closing thought blooms. "
         )
         result = _poem_paragraphs(poem_with_extra)
 
         expected = [
             "First paragraph sentence one.  Sentence two.  Sentence three.",
-            "Second paragraph grows in moonlight. Another sentence forms. Closing thought blooms.",
+            "Second paragraph grows in moonlight. Another sentence forms. "
+            "Closing thought blooms.",
         ]
         assert result == expected
 

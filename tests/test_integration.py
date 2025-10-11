@@ -28,11 +28,11 @@ class TestIntegration:
         mock_response = Mock()
         mock_response.choices = [Mock()]
         mock_response.choices[0].message = Mock()
-        mock_response.choices[
-            0
-        ].message.content = (
-            "Paragraph one sentence. Second thought lives here. Third idea sparkles.\n\n"
-            "Paragraph two grows. Another line unfolds. Final cadence settles."
+        mock_response.choices[0].message.content = (
+            "Paragraph one sentence. Second thought lives here. "
+            "Third idea sparkles.\n\n"
+            "Paragraph two grows. Another line unfolds. "
+            "Final cadence settles."
         )
 
         # Test CLI prompt generation
@@ -72,9 +72,11 @@ class TestIntegration:
     def test_poem_parsing_consistency(self):
         """Test that poem parsing works consistently across formats."""
         test_poems = [
-            "Paragraph one sentence. Another sentence. Third idea.\n\nParagraph two sentence. Extra thought. Closing line.",
+            "Paragraph one sentence. Another sentence. Third idea.\n\n"
+            "Paragraph two sentence. Extra thought. Closing line.",
             "Paragraph one sentence.\n\n\nParagraph two sentence.",
-            "  Paragraph one sentence.  Another.  Third.  \n\n  Paragraph two sentence.  Extra.  Closing.  ",
+            "  Paragraph one sentence.  Another.  Third.  \n\n  "
+            "Paragraph two sentence.  Extra.  Closing.  ",
             "Paragraph one sentence.   \n\nParagraph two sentence.\n\n",
         ]
 
