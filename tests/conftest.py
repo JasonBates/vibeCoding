@@ -18,7 +18,11 @@ def mock_openai_client():
 def mock_api_response():
     """Mock API response for haiku generation."""
     response = Mock()
-    response.output_text = (
+    response.choices = [Mock()]
+    response.choices[0].message = Mock()
+    response.choices[
+        0
+    ].message.content = (
         "Silent mind explored\nBound in trials of unknown\nTruth in quiet waits"
     )
     return response

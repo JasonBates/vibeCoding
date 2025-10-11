@@ -11,10 +11,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from haiku_service import MissingAPIKeyError
 from simple_llm_request import main
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class TestCLI:
@@ -25,7 +25,7 @@ class TestCLI:
     ):
         """Test main function with valid API key."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
-            mock_openai_client.responses.create.return_value = mock_api_response
+            mock_openai_client.chat.completions.create.return_value = mock_api_response
 
             # Test with input
             with patch("builtins.input", return_value="test subject"):
@@ -33,13 +33,13 @@ class TestCLI:
                     main()
 
             # Verify API was called correctly
-            mock_openai_client.responses.create.assert_called_once()
-            call_args = mock_openai_client.responses.create.call_args
+            mock_openai_client.chat.completions.create.assert_called_once()
+            call_args = mock_openai_client.chat.completions.create.call_args
 
-            assert call_args[1]["model"] == "gpt-4.1-mini"
-            assert "test subject" in call_args[1]["input"]
-            assert "haiku" in call_args[1]["input"].lower()
-            assert "5-7-5" in call_args[1]["input"]
+            assert call_args[1]["model"] == "gpt-4o-mini"
+            assert "test subject" in call_args[1]["messages"][0]["content"]
+            assert "haiku" in call_args[1]["messages"][0]["content"].lower()
+            assert "5-7-5" in call_args[1]["messages"][0]["content"]
 
             # Verify output
             output = captured_output.getvalue()
@@ -51,7 +51,7 @@ class TestCLI:
     ):
         """Test main function with empty input (default subject)."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
-            mock_openai_client.responses.create.return_value = mock_api_response
+            mock_openai_client.chat.completions.create.return_value = mock_api_response
 
             # Test with empty input (should use default)
             with patch("builtins.input", return_value=""):
@@ -59,8 +59,8 @@ class TestCLI:
                     main()
 
             # Verify default subject was used
-            call_args = mock_openai_client.responses.create.call_args
-            assert "quiet mornings" in call_args[1]["input"]
+            call_args = mock_openai_client.chat.completions.create.call_args
+            assert "quiet mornings" in call_args[1]["messages"][0]["content"]
 
     def test_main_without_api_key(self):
         """Test main function without API key returns error code."""
@@ -88,15 +88,15 @@ class TestCLI:
     ):
         """Test that prompt is formatted correctly."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
-            mock_openai_client.responses.create.return_value = mock_api_response
+            mock_openai_client.chat.completions.create.return_value = mock_api_response
 
             test_subject = "ocean waves"
             with patch("builtins.input", return_value=test_subject):
                 with redirect_stdout(StringIO()) as captured_output:
                     main()
 
-            call_args = mock_openai_client.responses.create.call_args
-            prompt = call_args[1]["input"]
+            call_args = mock_openai_client.chat.completions.create.call_args
+            prompt = call_args[1]["messages"][0]["content"]
 
             # Check prompt components
             assert "English haiku" in prompt
@@ -109,10 +109,12 @@ class TestCLI:
     def test_output_formatting(self, mock_env_vars, mock_openai_client, sample_haiku):
         """Test that output is formatted correctly."""
         response = Mock()
-        response.output_text = sample_haiku
+        response.choices = [Mock()]
+        response.choices[0].message = Mock()
+        response.choices[0].message.content = sample_haiku
 
         with patch("haiku_service.get_client", return_value=mock_openai_client):
-            mock_openai_client.responses.create.return_value = response
+            mock_openai_client.chat.completions.create.return_value = response
 
             with patch("builtins.input", return_value="test"):
                 with redirect_stdout(StringIO()) as captured_output:
