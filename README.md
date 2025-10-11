@@ -1,6 +1,6 @@
 # VibeCoding - Simple Haiku Generator
 
-A basic "hello world" Python project that generates simple haikus using OpenAI's API. This is a learning project to explore LLM integration, not a serious application.
+A basic "hello world" Python project that generates vivid two-paragraph poems using OpenAI's API. This is a learning project to explore LLM integration, not a serious application.
 
 ## 🧪 Testing Purpose
 
@@ -19,7 +19,7 @@ It serves as a practical example for understanding modern Python development pra
 This is a simple learning project that demonstrates:
 - **Basic LLM Integration**: How to call OpenAI's API from Python
 - **Simple Web UI**: A basic Streamlit interface for user interaction
-- **Command Line Tool**: A simple CLI script for haiku generation
+- **Command Line Tool**: A simple CLI script for poem generation
 - **Testing Examples**: Basic unit and integration test patterns
 - **Project Structure**: How to organize a small Python project
 
@@ -59,11 +59,11 @@ This is a simple learning project that demonstrates:
    export SUPABASE_KEY=your_supabase_anon_key
    ```
 
-   **Note:** Supabase credentials are optional. The app will work without them, but haiku history won't be saved.
+   **Note:** Supabase credentials are optional. The app will work without them, but poem history won't be saved.
 
 ### 🗄️ Supabase Setup (Optional)
 
-To enable haiku storage and history features:
+To enable poem storage and history features:
 
 1. **Create a Supabase account:**
    - Go to [supabase.com](https://supabase.com)
@@ -113,9 +113,9 @@ Then open your browser to `http://localhost:8501` and enjoy the modern interface
 - Real-time poem generation with loading animations
 - Beautiful typography with custom fonts
 - Responsive design that works on all devices
-- **🗄️ Haiku History Sidebar** - Browse and search your generated haikus
+- **🗄️ Poem Library Sidebar** - Browse and search your generated poems
 - **💾 Automatic Saving** - Haikus are automatically saved to Supabase
-- **🔍 Search & Filter** - Find haikus by subject with real-time search
+- **🔍 Search & Filter** - Find poems by subject with real-time search
 - **🎨 Glassmorphism Design** - Consistent modern UI throughout
 - **⚡ Real-time Updates** - Sidebar updates immediately after generation
 
@@ -127,13 +127,13 @@ For a quick command-line experience:
 python simple_llm_request.py
 ```
 
-Enter a subject when prompted, and the script will generate a traditional English haiku about that subject.
+Enter a subject when prompted, and the script will generate a vivid two-paragraph poem about that subject.
 
 ## Requirements
 
 - Python 3.8+
 - OpenAI API key
-- Supabase account (optional, for haiku storage)
+- Supabase account (optional, for poem storage)
 - openai>=1.0,<2.0
 - python-dotenv>=1.0,<2.0
 - streamlit>=1.36,<2.0
@@ -148,9 +148,9 @@ Visit `http://localhost:8501` and enter a subject like "coffee morning":
 
 **Output:**
 ```
-Silent mind explored
-Bound in trials of unknown
-Truth in quiet waits
+Silent mind explored in hush of dawn. Dreams wander through lavender air. We breathe the promise of morning.
+
+Moonlight drifts across the quiet lake. Memories ripple in silver whispers. We hold the night between our hands.
 ```
 
 ### Command Line Example
@@ -158,10 +158,10 @@ Truth in quiet waits
 $ python simple_llm_request.py
 Enter a subject for the poem: ocean waves
 
-Generated haiku:
-Ocean waves crash down
-Against the ancient shoreline
-Nature's endless song
+Generated poem:
+Ocean waves inherit the hush of dawn. Silver foam sketches patient signatures. Sunlight drapes the tide in glass.
+
+Saltwind teaches slow devotion. Cliffside cedars lean to listen. Evening gathers every gleam.
 ```
 
 ## 🚀 Quick Start
@@ -185,7 +185,7 @@ Nature's endless song
    streamlit run streamlit_app.py
    ```
 
-4. Open `http://localhost:8501` and start creating haikus!
+4. Open `http://localhost:8501` and start creating poems!
 
 ## 📸 Screenshots
 

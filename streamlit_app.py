@@ -64,7 +64,7 @@ def format_relative_time(dt: datetime) -> str:
 
 
 def render_haiku_card(haiku: Haiku) -> None:
-    """Render a haiku as a card in the sidebar."""
+    """Render a stored poem as a card in the sidebar."""
     subject_text = html.escape(haiku.subject).upper()
     haiku_html = html.escape(haiku.haiku_text).replace(chr(10), "<br>")
     with st.container():
@@ -87,15 +87,20 @@ def render_haiku_card(haiku: Haiku) -> None:
 
 
 def generate_poem(client: OpenAI, subject: str) -> str:
-    """Request a haiku about the given subject."""
+    """Request a two-paragraph poem about the given subject."""
     return haiku_service.generate_haiku(client, subject)
 
 
-def _poem_lines(poem: str) -> list[str]:
-    """Return poem lines split on newlines with whitespace trimmed."""
-    lines = [line.strip() for line in poem.splitlines()]
-    cleaned_lines = [line for line in lines if line]
-    return cleaned_lines or [poem]
+def _poem_paragraphs(poem: str) -> list[str]:
+    """Return poem paragraphs split on blank lines with whitespace trimmed."""
+    paragraphs = [paragraph.strip() for paragraph in poem.split("\n\n")]
+    cleaned_paragraphs = [paragraph for paragraph in paragraphs if paragraph]
+
+    if cleaned_paragraphs:
+        return cleaned_paragraphs
+
+    stripped = poem.strip()
+    return [stripped] if stripped else [""]
 
 
 def main() -> None:
@@ -277,7 +282,7 @@ def main() -> None:
 
     # Create sidebar for haiku history
     with st.sidebar:
-        st.markdown("### 📚 Haiku History")
+        st.markdown("### 📚 Poem Library")
 
         if storage_service and storage_service.is_available():
             # Add refresh button and search
@@ -285,8 +290,8 @@ def main() -> None:
             col1, col2 = st.columns([3, 1])
             with col1:
                 search_query = st.text_input(
-                    "Search haikus",
-                    placeholder="Type to filter haikus...",
+                    "Search poems",
+                    placeholder="Type to filter poems...",
                     key="search_query",
                     label_visibility="collapsed",
                 )
@@ -302,17 +307,17 @@ def main() -> None:
 
             if haikus:
                 st.markdown(
-                    f"**{len(haikus)} haiku{'s' if len(haikus) != 1 else ''} found**"
+                    f"**{len(haikus)} poem{'s' if len(haikus) != 1 else ''} found**"
                 )
                 for haiku in haikus:
                     render_haiku_card(haiku)
             else:
-                st.markdown("*No haikus found*")
+                st.markdown("*No poems found*")
         else:
             st.markdown("*Storage not available*")
             st.markdown(
                 "Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file "
-                "to enable haiku storage."
+                "to enable poem storage."
             )
 
     # Main content area
@@ -320,9 +325,9 @@ def main() -> None:
         st.markdown(
             """
             <div class="hero-text">
-                <h1>LLM Haiku Generator</h1>
-                <p>Summon bespoke 5-7-5 verses that capture the essence of your chosen subject.</p>  # noqa: E501
-                <p>Type a subject, press Enter, and enjoy a refined haiku in seconds.</p>  # noqa: E501
+                <h1>LLM Poem Generator</h1>
+                <p>Summon lyrical two-paragraph verses tailored to your chosen subject.</p>  # noqa: E501
+                <p>Type a subject, press Enter, and enjoy a vivid pair of paragraphs in seconds.</p>  # noqa: E501
             </div>
             """,
             unsafe_allow_html=True,
@@ -338,7 +343,7 @@ def main() -> None:
                 help="What should the poem be about?",
                 key="subject_input",
             ).strip()
-            submitted = st.form_submit_button("Generate Haiku")
+            submitted = st.form_submit_button("Generate Poem")
 
         # Focus the subject input each run so users can type immediately.
         components.html(
@@ -372,7 +377,7 @@ def main() -> None:
                 return
 
             client = get_client()
-            with st.spinner("Summoning gentle verses..."):
+            with st.spinner("Weaving a pair of poetic paragraphs..."):
                 try:
                     poem = generate_poem(client, subject)
                 except (
@@ -387,24 +392,25 @@ def main() -> None:
             if storage_service and storage_service.is_available():
                 saved_haiku = storage_service.save_haiku(subject, poem)
                 if saved_haiku:
-                    st.success("✨ Haiku saved to history!")
+                    st.success("✨ Poem saved to history!")
                     # Store success message in session state to persist across reruns
                     st.session_state["save_success"] = True
-                    # Refresh to show the new haiku in sidebar
+                    # Refresh to show the new poem in sidebar
                     st.rerun()
                 else:
-                    st.warning("⚠️ Generated haiku but couldn't save to history")
+                    st.warning("⚠️ Generated poem but couldn't save to history")
 
-        # Show persistent success message if haiku was just saved
+        # Show persistent success message if the poem was just saved
         if st.session_state.get("save_success", False):
-            st.success("✨ Haiku saved to history!")
+            st.success("✨ Poem saved to history!")
             # Clear the flag so message doesn't persist forever
             st.session_state["save_success"] = False
 
         poem_to_show = st.session_state.get("generated_poem")
         if poem_to_show:
             lines_markup = "".join(
-                f"<p>{html.escape(line)}</p>" for line in _poem_lines(poem_to_show)
+                f"<p>{html.escape(paragraph)}</p>"
+                for paragraph in _poem_paragraphs(poem_to_show)
             )
             st.markdown(
                 f"<div class='haiku-display'>{lines_markup}</div>",
