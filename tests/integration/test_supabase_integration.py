@@ -205,8 +205,12 @@ class TestSupabaseIntegration:
         # Get count after adding haiku
         new_count = storage_service.get_total_count()
 
-        # Count should have increased by 1
-        assert new_count == initial_count + 1
+        # Count should have increased by at least 1
+        # (Other tests may also be creating haikus concurrently)
+        assert new_count >= initial_count + 1, (
+            f"Expected count to increase by at least 1, "
+            f"but got {new_count} (was {initial_count})"
+        )
 
     def test_save_haiku_with_user_id(self, storage_service, test_haiku_ids):
         """Test saving haiku with user ID."""
