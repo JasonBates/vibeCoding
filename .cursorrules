@@ -30,6 +30,15 @@ streamlit run streamlit_app.py
 pip install -r requirements.txt
 ```
 
+### String Length Prevention Workflow
+1. **Before writing any string** - estimate if it will exceed 88 characters
+2. **If long, break immediately** - don't wait for linting to catch it
+3. **Use parentheses for concatenation** - `("part1" "part2")` not `"part1" + "part2"`
+4. **Break at logical points** - commas, conjunctions, natural pauses
+5. **Test strings are priority** - they're often the longest
+6. **Error messages** - informative but concise, break if needed
+7. **Always run pre-commit** - catches any missed long lines
+
 ## 🔒 Security Best Practices
 - **Input Sanitization**: Always escape user input before HTML rendering (use `html.escape()`)
 - **Secrets Management**: Store API keys in `.env` file, never hardcode credentials
@@ -76,6 +85,8 @@ pip install -r requirements.txt
 
 ## 📝 Code Quality Standards
 - **Style**: Follow PEP 8, use black for formatting
+- **Line Length**: Keep lines under 88 characters (flake8 limit)
+- **Long Strings**: Break long strings across multiple lines using parentheses
 - **Imports**: Use isort for import organization
 - **Linting**: Use flake8 for code quality checks
 - **Type Hints**: Use type annotations for better code documentation
@@ -99,13 +110,125 @@ pip install -r requirements.txt
 - **Don't ignore pre-commit hook failures**
 - **Always handle exceptions gracefully**
 
+## 📏 Linting Prevention Guidelines
+- **Line Length**: Always keep lines under 88 characters
+- **Long Strings**: Break test data and long strings like this:
+  ```python
+  # ✅ Good
+  haiku_text=(
+      "First part of the string. Second part continues. "
+      "Third part completes the thought.\n\n"
+      "Second paragraph starts here. Another line. "
+      "Final line ends here."
+  )
+
+  # ❌ Bad
+  haiku_text="Very long string that exceeds 88 characters and will fail flake8 checks"
+  ```
+
+### String Breaking Patterns
+- **Error Messages**: Break long error messages:
+  ```python
+  # ✅ Good
+  pytest.fail(
+      "Supabase credentials not configured - "
+      "SUPABASE_URL and SUPABASE_KEY required"
+  )
+
+  # ❌ Bad
+  pytest.fail("Supabase credentials not configured - SUPABASE_URL and SUPABASE_KEY required")
+  ```
+
+- **Assertion Messages**: Break long assertion messages:
+  ```python
+  # ✅ Good
+  assert any(word in result_lower for word in coffee_words), (
+      f"Poem should contain coffee/morning related words. "
+      f"Got: {result[:100]}..."
+  )
+
+  # ❌ Bad
+  assert any(word in result_lower for word in coffee_words), f"Poem should contain coffee/morning related words. Got: {result[:100]}..."
+  ```
+
+- **Print Statements**: Break long print statements:
+  ```python
+  # ✅ Good
+  print(
+      "❌ Supabase integration tests require valid credentials"
+  )
+  print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
+
+  # ❌ Bad
+  print("❌ Supabase integration tests require valid credentials. Set SUPABASE_URL and SUPABASE_KEY environment variables")
+  ```
+
+- **Function Arguments**: Break long function calls:
+  ```python
+  # ✅ Good
+  if not run_command(
+      [
+          "pytest",
+          "tests/integration/test_supabase_integration.py",
+          "-v",
+          "--tb=short",
+      ],
+      "Supabase Integration Tests",
+  ):
+      all_passed = False
+
+  # ❌ Bad
+  if not run_command(["pytest", "tests/integration/test_supabase_integration.py", "-v", "--tb=short"], "Supabase Integration Tests"):
+      all_passed = False
+  ```
+
+- **Dictionary/List Definitions**: Break long data structures:
+  ```python
+  # ✅ Good
+  coffee_words = [
+      "coffee", "morning", "brew", "cup", "wake",
+      "dawn", "sunrise", "steam", "aroma", "caffeine"
+  ]
+
+  # ❌ Bad
+  coffee_words = ["coffee", "morning", "brew", "cup", "wake", "dawn", "sunrise", "steam", "aroma", "caffeine"]
+  ```
+
+### Proactive String Management
+- **Always check string length** before writing - if it looks long, break it immediately
+- **Use parentheses for string concatenation** - never use `+` for long strings
+- **Break at logical points** - after commas, before conjunctions, at natural pauses
+- **Test strings in particular** - they're often the longest and most problematic
+- **Error messages** - keep them informative but concise, break if needed
+- **Comments** - break long comments across multiple lines
+- **Docstrings** - keep them concise, break long ones
+- **Import Statements**: Let isort handle import organization
+- **Function Calls**: Break long function calls across multiple lines
+
+### Quick Reference
+- **88 character limit** - always check before writing
+- **Parentheses for concatenation** - `("string1" "string2")` not `"string1" + "string2"`
+- **Break at logical points** - commas, conjunctions, natural pauses
+- **Test data is often long** - be extra careful with test strings
+- **Error messages** - informative but concise
+
 ## 📋 Pre-commit Checklist
 1. ✅ Activate virtual environment
-2. ✅ Run `python3 scripts/run_ci_tests.py`
-3. ✅ Check for security vulnerabilities
-4. ✅ Verify all tests pass
-5. ✅ Ensure code follows style guidelines
-6. ✅ Update documentation if needed
+2. ✅ Run `pre-commit run --all-files` to check formatting
+3. ✅ Run `python3 scripts/run_ci_tests.py`
+4. ✅ Check for security vulnerabilities
+5. ✅ Verify all tests pass
+6. ✅ Ensure code follows style guidelines
+7. ✅ Update documentation if needed
+
+## 🔄 Pre-commit Workflow
+- **Before committing**: Always run `pre-commit run --all-files`
+- **If hooks fail**: Fix the issues and run again
+- **Common fixes**:
+  - Run `pre-commit run black --all-files` for formatting
+  - Run `pre-commit run flake8 --all-files` for linting
+  - Run `pre-commit run isort --all-files` for imports
+- **Never commit with failing hooks**: Fix all issues first
 
 ## 🎯 Performance Optimization
 - **Caching**: Cache expensive operations and API responses
