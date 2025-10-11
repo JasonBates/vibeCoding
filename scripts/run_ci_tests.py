@@ -28,14 +28,32 @@ def run_command(cmd, description):
 
 
 def check_credentials():
-    """Check which credentials are available."""
+    """Check which credentials are available and valid."""
     openai_key = os.getenv("OPENAI_API_KEY")
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
 
+    # Check OpenAI credentials
+    openai_valid = bool(openai_key and openai_key != "test-key-for-mocking")
+
+    # Check Supabase credentials and test connection
+    supabase_valid = False
+    if supabase_url and supabase_key:
+        try:
+            from haiku_storage_service import HaikuStorageService
+
+            print(f"🔍 Testing Supabase connection with URL: {supabase_url[:20]}...")
+            print(f"🔍 Key starts with: {supabase_key[:10]}...")
+            service = HaikuStorageService(supabase_url, supabase_key)
+            supabase_valid = service.is_available()
+            print(f"🔍 Supabase available: {supabase_valid}")
+        except Exception as e:
+            print(f"🔍 Supabase connection failed: {e}")
+            supabase_valid = False
+
     return {
-        "openai": bool(openai_key and openai_key != "test-key-for-mocking"),
-        "supabase": bool(supabase_url and supabase_key),
+        "openai": openai_valid,
+        "supabase": supabase_valid,
     }
 
 

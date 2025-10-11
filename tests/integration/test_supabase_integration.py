@@ -24,7 +24,14 @@ class TestSupabaseIntegration:
         if not supabase_url or not supabase_key:
             pytest.skip("Supabase credentials not configured")
 
-        return HaikuStorageService(supabase_url, supabase_key)
+        # Create service and check if it's actually available
+        service = HaikuStorageService(supabase_url, supabase_key)
+        if not service.is_available():
+            pytest.skip(
+                "Supabase service not available (invalid credentials or connection)"
+            )
+
+        return service
 
     @pytest.fixture
     def test_haiku_ids(self):
