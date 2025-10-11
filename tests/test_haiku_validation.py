@@ -1,13 +1,14 @@
 """Tests for poem validation and formatting."""
 
+import os
 import sys
 
 import pytest
 
+from streamlit_app import _poem_paragraphs
+
 # Add parent directory to path to import the module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from streamlit_app import _poem_paragraphs
 
 
 class TestPoemValidation:
@@ -16,7 +17,9 @@ class TestPoemValidation:
     def test_paragraph_count(self, sample_haiku):
         """Test that generated poem has exactly two paragraphs."""
         paragraphs = _poem_paragraphs(sample_haiku)
-        assert len(paragraphs) == 2, f"Expected 2 paragraphs, got {len(paragraphs)}: {paragraphs}"
+        assert (
+            len(paragraphs) == 2
+        ), f"Expected 2 paragraphs, got {len(paragraphs)}: {paragraphs}"
 
     def test_paragraph_sentence_count(self, sample_haiku):
         """Test that each paragraph includes at least three sentences."""
