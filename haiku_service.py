@@ -1,4 +1,4 @@
-"""Shared helpers for generating haikus with the OpenAI Responses API."""
+"""Shared helpers for generating haikus with the OpenAI Chat Completions API."""
 from __future__ import annotations
 
 import os
@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 DEFAULT_SUBJECT = "quiet mornings"
-MODEL_NAME = "gpt-4.1-mini"
+MODEL_NAME = "gpt-4o-mini"
 PROMPT_TEMPLATE = (
     "Write an English haiku (three lines, 5-7-5 syllable pattern) "
     "about the following subject: {subject}. "
@@ -46,5 +46,10 @@ def build_prompt(subject: str) -> str:
 def generate_haiku(client: OpenAI, subject: str) -> str:
     """Request a haiku for the subject using the provided client."""
     prompt = build_prompt(subject)
-    response = client.responses.create(model=MODEL_NAME, input=prompt)
-    return response.output_text
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=150,
+        temperature=0.7,
+    )
+    return response.choices[0].message.content

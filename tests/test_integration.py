@@ -11,12 +11,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-# Add parent directory to path to import the module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from haiku_service import MissingAPIKeyError
 from simple_llm_request import main
 from streamlit_app import _poem_lines, generate_poem
+
+# Add parent directory to path to import the module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class TestIntegration:
@@ -26,33 +26,35 @@ class TestIntegration:
         """Test that CLI and Streamlit generate consistent prompts."""
         mock_client = Mock()
         mock_response = Mock()
-        mock_response.output_text = (
-            "Test haiku line 1\nTest haiku line 2\nTest haiku line 3"
-        )
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message = Mock()
+        mock_response.choices[
+            0
+        ].message.content = "Test haiku line 1\nTest haiku line 2\nTest haiku line 3"
 
         # Test CLI prompt generation
         with patch("haiku_service.get_client", return_value=mock_client):
-            mock_client.responses.create.return_value = mock_response
+            mock_client.chat.completions.create.return_value = mock_response
 
             with patch("builtins.input", return_value=sample_subject):
                 with patch("builtins.print"):  # Suppress output
                     main()
 
-            cli_call = mock_client.responses.create.call_args
+            cli_call = mock_client.chat.completions.create.call_args
 
         # Reset mock
         mock_client.reset_mock()
 
         # Test Streamlit prompt generation
-        mock_client.responses.create.return_value = mock_response
+        mock_client.chat.completions.create.return_value = mock_response
 
         generate_poem(mock_client, sample_subject)
 
-        streamlit_call = mock_client.responses.create.call_args
+        streamlit_call = mock_client.chat.completions.create.call_args
 
         # Compare the prompts
-        cli_prompt = cli_call[1]["input"]
-        streamlit_prompt = streamlit_call[1]["input"]
+        cli_prompt = cli_call[1]["messages"][0]["content"]
+        streamlit_prompt = streamlit_call[1]["messages"][0]["content"]
 
         # Both should contain the same key elements
         assert sample_subject in cli_prompt
@@ -127,31 +129,33 @@ class TestIntegration:
         """Test that both interfaces use the same model."""
         mock_client = Mock()
         mock_response = Mock()
-        mock_response.output_text = "Test haiku"
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message = Mock()
+        mock_response.choices[0].message.content = "Test haiku"
 
         # Test CLI model
         with patch("haiku_service.get_client", return_value=mock_client):
-            mock_client.responses.create.return_value = mock_response
+            mock_client.chat.completions.create.return_value = mock_response
 
             with patch("builtins.input", return_value=sample_subject):
                 with patch("builtins.print"):
                     main()
 
-            cli_model = mock_client.responses.create.call_args[1]["model"]
+            cli_model = mock_client.chat.completions.create.call_args[1]["model"]
 
         # Reset mock
         mock_client.reset_mock()
 
         # Test Streamlit model
-        mock_client.responses.create.return_value = mock_response
+        mock_client.chat.completions.create.return_value = mock_response
 
         generate_poem(mock_client, sample_subject)
 
-        streamlit_model = mock_client.responses.create.call_args[1]["model"]
+        streamlit_model = mock_client.chat.completions.create.call_args[1]["model"]
 
         # Both should use the same model
         assert cli_model == streamlit_model
-        assert cli_model == "gpt-4.1-mini"
+        assert cli_model == "gpt-4o-mini"
 
     def test_environment_variable_handling(self):
         """Test that both interfaces handle environment variables consistently."""

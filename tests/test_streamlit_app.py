@@ -6,11 +6,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-# Add parent directory to path to import the module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from haiku_service import MissingAPIKeyError
 from streamlit_app import _poem_lines, generate_poem, get_client
+
+# Add parent directory to path to import the module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class TestStreamlitApp:
@@ -50,22 +50,24 @@ class TestStreamlitApp:
 
     def test_generate_poem(self, mock_openai_client, mock_api_response, sample_subject):
         """Test generate_poem function."""
-        mock_openai_client.responses.create.return_value = mock_api_response
+        mock_openai_client.chat.completions.create.return_value = mock_api_response
 
         result = generate_poem(mock_openai_client, sample_subject)
 
         # Verify API call
-        mock_openai_client.responses.create.assert_called_once()
-        call_args = mock_openai_client.responses.create.call_args
+        mock_openai_client.chat.completions.create.assert_called_once()
+        call_args = mock_openai_client.chat.completions.create.call_args
 
-        assert call_args[1]["model"] == "gpt-4.1-mini"
-        assert sample_subject in call_args[1]["input"]
-        assert "haiku" in call_args[1]["input"].lower()
-        assert "5-7-5" in call_args[1]["input"]
-        assert "Return the haiku as three lines" in call_args[1]["input"]
+        assert call_args[1]["model"] == "gpt-4o-mini"
+        assert sample_subject in call_args[1]["messages"][0]["content"]
+        assert "haiku" in call_args[1]["messages"][0]["content"].lower()
+        assert "5-7-5" in call_args[1]["messages"][0]["content"]
+        assert (
+            "Return the haiku as three lines" in call_args[1]["messages"][0]["content"]
+        )
 
         # Verify return value
-        assert result == mock_api_response.output_text
+        assert result == mock_api_response.choices[0].message.content
 
     def test_poem_lines_with_newlines(self, sample_haiku):
         """Test _poem_lines with newline-separated haiku."""
@@ -111,12 +113,12 @@ class TestStreamlitApp:
     ):
         """Test that generate_poem creates correct prompt format."""
         test_subject = "mountain peaks"
-        mock_openai_client.responses.create.return_value = mock_api_response
+        mock_openai_client.chat.completions.create.return_value = mock_api_response
 
         generate_poem(mock_openai_client, test_subject)
 
-        call_args = mock_openai_client.responses.create.call_args
-        prompt = call_args[1]["input"]
+        call_args = mock_openai_client.chat.completions.create.call_args
+        prompt = call_args[1]["messages"][0]["content"]
 
         # Check prompt components
         assert "Write an English haiku" in prompt

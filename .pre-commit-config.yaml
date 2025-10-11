@@ -42,3 +42,15 @@ repos:
   #     - id: mypy
   #       additional_dependencies: [types-all]
   #       args: [--ignore-missing-imports]
+
+  # Run unit tests as part of pre-commit
+  - repo: local
+    hooks:
+      - id: pytest-unit
+        name: pytest-unit
+        entry: pytest
+        language: system
+        args: [tests/test_cli.py, tests/test_streamlit_app.py, tests/test_haiku_validation.py, tests/test_integration.py, tests/test_repository.py, tests/test_haiku_storage_service.py, -v, --tb=short]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
