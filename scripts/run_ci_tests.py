@@ -46,12 +46,37 @@ def check_credentials():
     if supabase_url and supabase_key:
         try:
             # Add current directory to Python path for imports
+            import os
             import sys
             from pathlib import Path
 
-            sys.path.insert(0, str(Path(__file__).parent.parent))
+            # Debug: Print current working directory and Python path
+            print(f"🔍 Current working directory: {os.getcwd()}")
+            print(f"🔍 Script location: {Path(__file__).parent.parent}")
 
-            from haiku_storage_service import HaikuStorageService
+            # Add multiple possible paths
+            project_root = Path(__file__).parent.parent
+            sys.path.insert(0, str(project_root))
+            sys.path.insert(0, str(project_root.absolute()))
+
+            # Try importing with different approaches
+            try:
+                from haiku_storage_service import HaikuStorageService
+            except ImportError as ie:
+                print(f"🔍 Import error: {ie}")
+                print(f"🔍 Python path: {sys.path[:3]}")
+                # Try alternative import
+                import importlib.util
+
+                spec = importlib.util.spec_from_file_location(
+                    "haiku_storage_service", project_root / "haiku_storage_service.py"
+                )
+                if spec and spec.loader:
+                    haiku_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(haiku_module)
+                    HaikuStorageService = haiku_module.HaikuStorageService
+                else:
+                    raise ie
 
             print(f"🔍 Testing Supabase connection with URL: {supabase_url[:20]}...")
             print(f"🔍 Key starts with: {supabase_key[:10]}...")
@@ -60,6 +85,10 @@ def check_credentials():
             print(f"🔍 Supabase available: {supabase_valid}")
         except Exception as e:
             print(f"🔍 Supabase connection failed: {e}")
+            print(f"🔍 Exception type: {type(e).__name__}")
+            import traceback
+
+            print(f"🔍 Traceback: {traceback.format_exc()}")
             supabase_valid = False
 
     return {
@@ -164,11 +193,23 @@ def main():
         if not run_command(coverage_cmd, "Coverage Report"):
             all_passed = False
 
-    # Fail if Supabase credentials are missing or invalid
+    # Check Supabase credentials and provide helpful error message
     if not creds["supabase"]:
         print("❌ Supabase integration tests require valid credentials")
         print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
-        all_passed = False
+        print("   In GitHub Actions, add these as repository secrets")
+        print("   In local development, add them to .env file")
+
+        # In CI, we should fail. In local dev, we might want to be more lenient
+        import os
+
+        if os.getenv("GITHUB_ACTIONS"):
+            print("   This is running in GitHub Actions - failing build")
+            all_passed = False
+        else:
+            print("   This is local development - you can continue without Supabase")
+            print("   But integration tests will be skipped")
+            all_passed = False  # Still fail to encourage proper setup
 
     # Final result
     print("\n🎯 Test Results Summary")
