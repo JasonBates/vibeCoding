@@ -161,9 +161,7 @@ class TestHaikuStorageService:
         # Verify result
         assert result == [sample_haiku]
 
-    def test_search_haikus_whitespace_query(
-        self, service, mock_repository, sample_haiku
-    ):
+    def test_search_haikus_whitespace_query(self, service, mock_repository, sample_haiku):
         """Test searching haikus with whitespace-only query falls back to recent."""
         # Mock repository response
         mock_repository.get_all.return_value = [sample_haiku]
@@ -306,9 +304,7 @@ class TestHaikuStorageService:
             client = service.client
 
             # Verify client creation
-            mock_create_client.assert_called_once_with(
-                "http://test.supabase.co", "test-key"
-            )
+            mock_create_client.assert_called_once_with("http://test.supabase.co", "test-key")
             assert client == mock_client
 
     def test_client_property_caching(self):

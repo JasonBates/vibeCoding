@@ -86,9 +86,7 @@ def render_haiku_card(haiku: Haiku, *, enable_delete: bool = False) -> None:
         )
         if enable_delete and haiku.id:
             delete_key = f"delete_button_{haiku.id}"
-            if st.button(
-                "✕", key=delete_key, help="Delete this haiku", type="secondary"
-            ):  # noqa: E501
+            if st.button("✕", key=delete_key, help="Delete this haiku", type="secondary"):  # noqa: E501
                 st.session_state["delete_target"] = {
                     "id": haiku.id,
                     "subject": haiku.subject,
@@ -219,6 +217,38 @@ def main() -> None:
             font-family: 'Playfair Display', serif;
             color: #1e293b;
             line-height: 1.4;
+        }
+
+        .delete-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .delete-modal-card {
+            width: min(420px, 90vw);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            padding: 1.8rem;
+            box-shadow: 0 30px 45px rgba(15, 23, 42, 0.26);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            backdrop-filter: blur(12px);
+        }
+
+        .delete-modal-card h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .delete-modal-buttons {
+            margin-top: 1.5rem;
         }
 
         .hero-text {
@@ -362,30 +392,33 @@ def main() -> None:
                 haikus = storage_service.get_recent_haikus(limit=10)
 
             if haikus:
-                st.markdown(
-                    f"**{len(haikus)} poem{'s' if len(haikus) != 1 else ''} found**"
-                )
+                st.markdown(f"**{len(haikus)} poem{'s' if len(haikus) != 1 else ''} found**")
                 for haiku in haikus:
                     render_haiku_card(haiku, enable_delete=True)
             else:
                 st.markdown("*No poems found*")
         else:
             st.markdown("*Storage not available*")
-            st.markdown(
-                "Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file "
-                "to enable poem storage."
-            )
+            st.markdown("Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file " "to enable poem storage.")
+
+    modal_placeholder = st.empty()
 
     if storage_available and st.session_state.get("show_delete_modal"):
         target = st.session_state.get("delete_target")
         if target:
-            with st.modal("Delete haiku?", key="delete_modal"):
-                subject = target.get("subject", "")
+            with modal_placeholder.container():
                 st.markdown(
-                    f"Are you sure you want to delete "
-                    f"<strong>{html.escape(subject)}</strong> from your library?",
+                    "<div class='delete-modal-overlay'><div class='delete-modal-card'>",
                     unsafe_allow_html=True,
                 )
+
+                subject = target.get("subject", "")
+                subject_html = html.escape(subject)
+                st.markdown(
+                    f"<h4>Delete &ldquo;{subject_html}&rdquo;?</h4>",
+                    unsafe_allow_html=True,
+                )
+                st.markdown("This action permanently removes the poem.", unsafe_allow_html=True)
 
                 haiku_lines = target.get("haiku_text", "").splitlines()
                 preview_html = "<br>".join(html.escape(line) for line in haiku_lines)
@@ -399,27 +432,36 @@ def main() -> None:
                 if error_text:
                     st.error(error_text)
 
+                st.markdown("<div class='delete-modal-buttons'>", unsafe_allow_html=True)
                 cancel_col, confirm_col = st.columns(2)
-                if cancel_col.button("Cancel", key="cancel_delete", type="secondary"):
+                if cancel_col.button(
+                    "Cancel",
+                    key="cancel_delete",
+                    type="secondary",
+                    use_container_width=True,
+                ):
                     st.session_state.pop("show_delete_modal", None)
                     st.session_state.pop("delete_target", None)
                     st.session_state.pop("delete_error_message", None)
                     st.rerun()
 
-                if confirm_col.button("Delete", key="confirm_delete", type="primary"):
+                if confirm_col.button(
+                    "Delete",
+                    key="confirm_delete",
+                    type="primary",
+                    use_container_width=True,
+                ):
                     if storage_service.delete_haiku(target["id"]):
-                        st.session_state[
-                            "delete_success_message"
-                        ] = f'Removed "{subject}" from your library.'
+                        st.session_state["delete_success_message"] = f'Removed "{subject}" from your library.'
                         st.session_state.pop("delete_target", None)
                         st.session_state.pop("delete_error_message", None)
                         st.session_state.pop("show_delete_modal", None)
                         st.rerun()
                     else:
-                        st.session_state[
-                            "delete_error_message"
-                        ] = "Couldn't delete the haiku. Please try again."
+                        st.session_state["delete_error_message"] = "Couldn't delete the haiku. Please try again."
                         st.rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown("</div></div>", unsafe_allow_html=True)
         else:
             st.session_state.pop("show_delete_modal", None)
 
@@ -483,9 +525,7 @@ def main() -> None:
             with st.spinner("Weaving a pair of poetic paragraphs..."):
                 try:
                     poem = generate_poem(client, subject)
-                except (
-                    Exception
-                ) as exc:  # noqa: BLE001 - surface any API/runtime errors
+                except Exception as exc:  # noqa: BLE001 - surface any API/runtime errors
                     st.error(f"Failed to generate poem: {exc}")
                     return
 
@@ -511,10 +551,7 @@ def main() -> None:
 
         poem_to_show = st.session_state.get("generated_poem")
         if poem_to_show:
-            lines_markup = "".join(
-                f"<p>{html.escape(paragraph)}</p>"
-                for paragraph in _poem_paragraphs(poem_to_show)
-            )
+            lines_markup = "".join(f"<p>{html.escape(paragraph)}</p>" for paragraph in _poem_paragraphs(poem_to_show))
             st.markdown(
                 f"<div class='haiku-display'>{lines_markup}</div>",
                 unsafe_allow_html=True,

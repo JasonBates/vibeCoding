@@ -25,10 +25,7 @@ def load_api_key() -> str:
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise MissingAPIKeyError(
-            "OPENAI_API_KEY not set; add it to .env or export it before "
-            "running this script."
-        )
+        raise MissingAPIKeyError("OPENAI_API_KEY not set; add it to .env or export it before " "running this script.")
     return api_key
 
 

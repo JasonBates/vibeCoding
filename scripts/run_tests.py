@@ -35,12 +35,8 @@ def main():
         choices=["unit", "integration", "e2e", "all", "fast"],
         help="Type of tests to run",
     )
-    parser.add_argument(
-        "--coverage", action="store_true", help="Run with coverage reporting"
-    )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Run with verbose output"
-    )
+    parser.add_argument("--coverage", action="store_true", help="Run with coverage reporting")
+    parser.add_argument("--verbose", action="store_true", help="Run with verbose output")
 
     args = parser.parse_args()
 
@@ -62,9 +58,7 @@ def main():
     elif args.test_type == "integration":
         # Check for API key
         if not os.getenv("OPENAI_API_KEY"):
-            print(
-                "❌ OPENAI_API_KEY not found. Integration tests require a real API key."
-            )
+            print("❌ OPENAI_API_KEY not found. Integration tests require a real API key.")
             print("   Set your API key: export OPENAI_API_KEY=your_key_here")
             return False
 

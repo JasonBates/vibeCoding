@@ -75,8 +75,7 @@ class TestIntegration:
             "Paragraph one sentence. Another sentence. Third idea.\n\n"
             "Paragraph two sentence. Extra thought. Closing line.",
             "Paragraph one sentence.\n\n\nParagraph two sentence.",
-            "  Paragraph one sentence.  Another.  Third.  \n\n  "
-            "Paragraph two sentence.  Extra.  Closing.  ",
+            "  Paragraph one sentence.  Another.  Third.  \n\n  " "Paragraph two sentence.  Extra.  Closing.  ",
             "Paragraph one sentence.   \n\nParagraph two sentence.\n\n",
         ]
 
@@ -96,10 +95,7 @@ class TestIntegration:
 
     def test_error_handling_consistency(self):
         """Test that both interfaces handle errors consistently."""
-        error_message = (
-            "OPENAI_API_KEY not set; add it to .env or export it before running "
-            "this script."
-        )
+        error_message = "OPENAI_API_KEY not set; add it to .env or export it before running " "this script."
 
         # Test CLI error handling
         with patch(

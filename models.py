@@ -49,7 +49,4 @@ class Haiku:
 
     def __str__(self) -> str:
         """String representation for display."""
-        return (
-            f"Haiku(id={self.id}, subject='{self.subject}', "
-            f"created_at={self.created_at})"
-        )
+        return f"Haiku(id={self.id}, subject='{self.subject}', " f"created_at={self.created_at})"

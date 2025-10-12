@@ -46,9 +46,7 @@ class HaikuStorageService:
             self._repository = HaikuRepository(self.client)
         return self._repository
 
-    def save_haiku(
-        self, subject: str, haiku_text: str, user_id: Optional[str] = None
-    ) -> Optional[Haiku]:
+    def save_haiku(self, subject: str, haiku_text: str, user_id: Optional[str] = None) -> Optional[Haiku]:
         """Save a haiku with validation and error handling.
 
         Args:
@@ -70,9 +68,7 @@ class HaikuStorageService:
                 return None
 
             # Create haiku instance
-            haiku = Haiku(
-                subject=subject.strip(), haiku_text=haiku_text.strip(), user_id=user_id
-            )
+            haiku = Haiku(subject=subject.strip(), haiku_text=haiku_text.strip(), user_id=user_id)
 
             # Save to database
             saved_haiku = self.repository.save(haiku)
