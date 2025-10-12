@@ -22,17 +22,12 @@ class TestSupabaseIntegration:
         supabase_key = os.getenv("SUPABASE_KEY")
 
         if not supabase_url or not supabase_key:
-            pytest.fail(
-                "Supabase credentials not configured - "
-                "SUPABASE_URL and SUPABASE_KEY required"
-            )
+            pytest.fail("Supabase credentials not configured - " "SUPABASE_URL and SUPABASE_KEY required")
 
         # Create service and check if it's actually available
         service = HaikuStorageService(supabase_url, supabase_key)
         if not service.is_available():
-            pytest.fail(
-                "Supabase service not available - check your credentials and connection"
-            )
+            pytest.fail("Supabase service not available - check your credentials and connection")
 
         return service
 
@@ -50,22 +45,14 @@ class TestSupabaseIntegration:
             try:
                 for haiku_id in test_haiku_ids:
                     # Delete each test haiku by ID
-                    storage_service.client.table("haikus").delete().eq(
-                        "id", haiku_id
-                    ).execute()
+                    storage_service.client.table("haikus").delete().eq("id", haiku_id).execute()
             except Exception as e:
                 print(f"Warning: Failed to cleanup test data: {e}")
 
-    def _create_test_haiku(
-        self, storage_service, test_haiku_ids, subject_suffix="", text="Test haiku"
-    ):
+    def _create_test_haiku(self, storage_service, test_haiku_ids, subject_suffix="", text="Test haiku"):
         """Helper method to create a test haiku and track it for cleanup."""
         test_subject = f"test-{datetime.now().timestamp()}{subject_suffix}"
-        test_text = (
-            text
-            if text != "Test haiku"
-            else "Test haiku line one\nTest haiku line two\nTest haiku line three"
-        )
+        test_text = text if text != "Test haiku" else "Test haiku line one\nTest haiku line two\nTest haiku line three"
 
         saved_haiku = storage_service.save_haiku(test_subject, test_text)
         if saved_haiku:
@@ -84,19 +71,14 @@ class TestSupabaseIntegration:
         # Verify save was successful
         assert saved_haiku is not None
         assert saved_haiku.subject.startswith("test-")
-        assert (
-            saved_haiku.haiku_text
-            == "Test haiku line one\nTest haiku line two\nTest haiku line three"
-        )
+        assert saved_haiku.haiku_text == "Test haiku line one\nTest haiku line two\nTest haiku line three"
         assert saved_haiku.id is not None
         assert saved_haiku.created_at is not None
 
     def test_get_recent_haikus(self, storage_service, test_haiku_ids):
         """Test retrieving recent haikus."""
         # Save a test haiku first using helper method
-        self._create_test_haiku(
-            storage_service, test_haiku_ids, "-recent", "Recent test haiku"
-        )
+        self._create_test_haiku(storage_service, test_haiku_ids, "-recent", "Recent test haiku")
 
         # Get recent haikus
         recent_haikus = storage_service.get_recent_haikus(limit=5)
@@ -116,9 +98,7 @@ class TestSupabaseIntegration:
     def test_search_haikus_by_subject(self, storage_service, test_haiku_ids):
         """Test searching haikus by subject."""
         # Save a test haiku with unique subject using helper method
-        saved_haiku = self._create_test_haiku(
-            storage_service, test_haiku_ids, "-search", "Search test haiku"
-        )
+        saved_haiku = self._create_test_haiku(storage_service, test_haiku_ids, "-search", "Search test haiku")
         unique_subject = saved_haiku.subject
 
         # Search for the haiku
@@ -141,9 +121,7 @@ class TestSupabaseIntegration:
     def test_search_haikus_partial_match(self, storage_service, test_haiku_ids):
         """Test searching haikus with partial subject match."""
         # Save a test haiku with unique subject using helper method
-        saved_haiku = self._create_test_haiku(
-            storage_service, test_haiku_ids, "-partial", "Partial search test haiku"
-        )
+        saved_haiku = self._create_test_haiku(storage_service, test_haiku_ids, "-partial", "Partial search test haiku")
         unique_subject = saved_haiku.subject
 
         # Search with partial subject
@@ -167,9 +145,7 @@ class TestSupabaseIntegration:
     def test_get_haiku_by_id(self, storage_service, test_haiku_ids):
         """Test retrieving a specific haiku by ID."""
         # Save a test haiku first using helper method
-        saved_haiku = self._create_test_haiku(
-            storage_service, test_haiku_ids, "-id", "ID test haiku"
-        )
+        saved_haiku = self._create_test_haiku(storage_service, test_haiku_ids, "-id", "ID test haiku")
 
         assert saved_haiku is not None
         haiku_id = saved_haiku.id
@@ -198,9 +174,7 @@ class TestSupabaseIntegration:
         initial_count = storage_service.get_total_count()
 
         # Save a test haiku using helper method
-        self._create_test_haiku(
-            storage_service, test_haiku_ids, "-count", "Count test haiku"
-        )
+        self._create_test_haiku(storage_service, test_haiku_ids, "-count", "Count test haiku")
 
         # Get count after adding haiku
         new_count = storage_service.get_total_count()
@@ -208,8 +182,7 @@ class TestSupabaseIntegration:
         # Count should have increased by at least 1
         # (Other tests may also be creating haikus concurrently)
         assert new_count >= initial_count + 1, (
-            f"Expected count to increase by at least 1, "
-            f"but got {new_count} (was {initial_count})"
+            f"Expected count to increase by at least 1, " f"but got {new_count} (was {initial_count})"
         )
 
     def test_save_haiku_with_user_id(self, storage_service, test_haiku_ids):
@@ -243,15 +216,11 @@ class TestSupabaseIntegration:
         # Save multiple test haikus with slight delays using helper method
         import time
 
-        saved_haiku1 = self._create_test_haiku(
-            storage_service, test_haiku_ids, "-order1", "First haiku"
-        )
+        saved_haiku1 = self._create_test_haiku(storage_service, test_haiku_ids, "-order1", "First haiku")
 
         time.sleep(0.1)  # Small delay to ensure different timestamps
 
-        saved_haiku2 = self._create_test_haiku(
-            storage_service, test_haiku_ids, "-order2", "Second haiku"
-        )
+        saved_haiku2 = self._create_test_haiku(storage_service, test_haiku_ids, "-order2", "Second haiku")
 
         # Get recent haikus
         recent_haikus = storage_service.get_recent_haikus(limit=10)

@@ -42,9 +42,7 @@ class TestEndToEndPoem:
         poem_lines = [
             line
             for line in lines
-            if line
-            and not line.startswith("Generated poem:")
-            and not line.startswith("Enter a subject")
+            if line and not line.startswith("Generated poem:") and not line.startswith("Enter a subject")
         ]
 
         # Check that we got some poem content
@@ -55,13 +53,10 @@ class TestEndToEndPoem:
         assert len(poem_text.strip()) > 10, f"Poem content too short: {poem_text}"
 
         # Check for two-paragraph structure (with or without blank line separator)
-        poem_paragraphs = [
-            paragraph for paragraph in poem_text.split("\n\n") if paragraph.strip()
-        ]
+        poem_paragraphs = [paragraph for paragraph in poem_text.split("\n\n") if paragraph.strip()]
         # Accept either 1 or 2 paragraphs (API may not always return blank line)
         assert 1 <= len(poem_paragraphs) <= 2, (
-            f"Expected 1-2 poem paragraphs, got {len(poem_paragraphs)}: "
-            f"{poem_paragraphs}"
+            f"Expected 1-2 poem paragraphs, got {len(poem_paragraphs)}: " f"{poem_paragraphs}"
         )
 
         print(f"E2E CLI Output: {result.stdout}")
@@ -119,20 +114,14 @@ class TestEndToEndPoem:
         # All should be valid poems with two paragraphs
         for result in results:
             paragraphs = [p for p in result.split("\n\n") if p.strip()]
-            assert (
-                len(paragraphs) == 2
-            ), f"Expected 2 paragraphs, got {len(paragraphs)}: {result}"
-            assert all(
-                paragraph.strip() for paragraph in paragraphs
-            ), f"Empty paragraphs found: {result}"
+            assert len(paragraphs) == 2, f"Expected 2 paragraphs, got {len(paragraphs)}: {result}"
+            assert all(paragraph.strip() for paragraph in paragraphs), f"Empty paragraphs found: {result}"
 
         # They should be different (creativity test)
         unique_results = set(results)
         assert len(unique_results) > 1, "All poems were identical - lack of creativity"
 
-        print(
-            f"Generated {len(unique_results)} unique poems out of {len(results)} runs"
-        )
+        print(f"Generated {len(unique_results)} unique poems out of {len(results)} runs")
 
     def test_error_handling_e2e(self):
         """Test error handling in complete workflow."""

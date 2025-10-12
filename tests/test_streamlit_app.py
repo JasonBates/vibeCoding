@@ -29,10 +29,7 @@ class TestStreamlitApp:
 
     def test_get_client_without_api_key(self):
         """Test get_client without API key raises error."""
-        error_message = (
-            "OPENAI_API_KEY not set; add it to .env or export it before running "
-            "this script."
-        )
+        error_message = "OPENAI_API_KEY not set; add it to .env or export it before running " "this script."
 
         with patch("streamlit_app.st") as mock_st:
             mock_st.error.return_value = None
@@ -93,8 +90,7 @@ class TestStreamlitApp:
 
         expected = [
             "First paragraph sentence one.  Sentence two.  Sentence three.",
-            "Second paragraph grows in moonlight. Another sentence forms. "
-            "Closing thought blooms.",
+            "Second paragraph grows in moonlight. Another sentence forms. " "Closing thought blooms.",
         ]
         assert result == expected
 
@@ -118,9 +114,7 @@ class TestStreamlitApp:
         expected = ["Line one", "Line two"]
         assert result == expected
 
-    def test_generate_poem_prompt_formatting(
-        self, mock_openai_client, mock_api_response
-    ):
+    def test_generate_poem_prompt_formatting(self, mock_openai_client, mock_api_response):
         """Test that generate_poem creates correct prompt format."""
         test_subject = "mountain peaks"
         mock_openai_client.chat.completions.create.return_value = mock_api_response

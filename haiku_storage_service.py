@@ -46,9 +46,7 @@ class HaikuStorageService:
             self._repository = HaikuRepository(self.client)
         return self._repository
 
-    def save_haiku(
-        self, subject: str, haiku_text: str, user_id: Optional[str] = None
-    ) -> Optional[Haiku]:
+    def save_haiku(self, subject: str, haiku_text: str, user_id: Optional[str] = None) -> Optional[Haiku]:
         """Save a haiku with validation and error handling.
 
         Args:
@@ -70,9 +68,7 @@ class HaikuStorageService:
                 return None
 
             # Create haiku instance
-            haiku = Haiku(
-                subject=subject.strip(), haiku_text=haiku_text.strip(), user_id=user_id
-            )
+            haiku = Haiku(subject=subject.strip(), haiku_text=haiku_text.strip(), user_id=user_id)
 
             # Save to database
             saved_haiku = self.repository.save(haiku)
@@ -156,4 +152,23 @@ class HaikuStorageService:
             return True
         except Exception as e:
             logger.warning("Storage service not available: %s", e)
+            return False
+
+    def delete_haiku(self, haiku_id: str) -> bool:
+        """Delete a haiku by its ID with validation and error handling.
+
+        Args:
+            haiku_id: ID of the haiku to delete
+
+        Returns:
+            True if the haiku was deleted, False otherwise
+        """
+        try:
+            if not haiku_id or not haiku_id.strip():
+                logger.warning("Cannot delete haiku: empty haiku_id")
+                return False
+
+            return self.repository.delete(haiku_id.strip())
+        except Exception as e:
+            logger.error("Failed to delete haiku '%s': %s", haiku_id, e)
             return False

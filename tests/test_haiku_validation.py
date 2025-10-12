@@ -17,9 +17,7 @@ class TestPoemValidation:
     def test_paragraph_count(self, sample_haiku):
         """Test that generated poem has exactly two paragraphs."""
         paragraphs = _poem_paragraphs(sample_haiku)
-        assert (
-            len(paragraphs) == 2
-        ), f"Expected 2 paragraphs, got {len(paragraphs)}: {paragraphs}"
+        assert len(paragraphs) == 2, f"Expected 2 paragraphs, got {len(paragraphs)}: {paragraphs}"
 
     def test_paragraph_sentence_count(self, sample_haiku):
         """Test that each paragraph includes at least three sentences."""
@@ -28,8 +26,7 @@ class TestPoemValidation:
         for paragraph in paragraphs:
             sentences = [part for part in paragraph.split(".") if part.strip()]
             assert len(sentences) >= 3, (
-                "Each paragraph should contain multiple sentences; "
-                f"got {len(sentences)} in paragraph {paragraph!r}"
+                "Each paragraph should contain multiple sentences; " f"got {len(sentences)} in paragraph {paragraph!r}"
             )
 
     def test_poem_has_blank_line_separator(self, sample_haiku):

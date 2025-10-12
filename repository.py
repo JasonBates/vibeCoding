@@ -122,12 +122,7 @@ class HaikuRepository:
             Exception: If database operation fails
         """
         try:
-            result = (
-                self.client.table(self.table_name)
-                .select("*")
-                .eq("id", haiku_id)
-                .execute()
-            )
+            result = self.client.table(self.table_name).select("*").eq("id", haiku_id).execute()
 
             if not result.data:
                 return None
@@ -148,11 +143,28 @@ class HaikuRepository:
             Exception: If database operation fails
         """
         try:
-            result = (
-                self.client.table(self.table_name).select("id", count="exact").execute()
-            )
+            result = self.client.table(self.table_name).select("id", count="exact").execute()
             return result.count or 0
 
         except Exception as e:
             logger.error("Failed to count haikus: %s", e)
+            raise
+
+    def delete(self, haiku_id: str) -> bool:
+        """Delete a haiku by its ID.
+
+        Args:
+            haiku_id: ID of the haiku to delete
+
+        Returns:
+            True if a haiku was deleted, False otherwise
+
+        Raises:
+            Exception: If database operation fails
+        """
+        try:
+            result = self.client.table(self.table_name).delete().eq("id", haiku_id).execute()
+            return bool(result.data)
+        except Exception as e:
+            logger.error("Failed to delete haiku '%s': %s", haiku_id, e)
             raise

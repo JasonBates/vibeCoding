@@ -282,3 +282,55 @@ class TestHaikuRepository:
 
         # Verify result
         assert result == 0
+
+    def test_delete_haiku_success(self, repository, mock_supabase_client):
+        """Test deleting a haiku successfully."""
+        mock_table = Mock()
+        mock_delete = Mock()
+        mock_eq = Mock()
+        mock_execute = Mock()
+
+        mock_execute.data = [{"id": "test-id"}]
+        mock_eq.execute.return_value = mock_execute
+        mock_delete.eq.return_value = mock_eq
+        mock_table.delete.return_value = mock_delete
+        mock_supabase_client.table.return_value = mock_table
+
+        result = repository.delete("test-id")
+
+        mock_supabase_client.table.assert_called_once_with("haikus")
+        mock_table.delete.assert_called_once()
+        mock_delete.eq.assert_called_once_with("id", "test-id")
+        mock_eq.execute.assert_called_once()
+        assert result is True
+
+    def test_delete_haiku_not_found(self, repository, mock_supabase_client):
+        """Test deleting a haiku when no record matches."""
+        mock_table = Mock()
+        mock_delete = Mock()
+        mock_eq = Mock()
+        mock_execute = Mock()
+
+        mock_execute.data = []
+        mock_eq.execute.return_value = mock_execute
+        mock_delete.eq.return_value = mock_eq
+        mock_table.delete.return_value = mock_delete
+        mock_supabase_client.table.return_value = mock_table
+
+        result = repository.delete("missing-id")
+
+        assert result is False
+
+    def test_delete_haiku_failure(self, repository, mock_supabase_client):
+        """Test deleting a haiku when the repository raises an error."""
+        mock_table = Mock()
+        mock_delete = Mock()
+        mock_eq = Mock()
+
+        mock_eq.execute.side_effect = Exception("Database error")
+        mock_delete.eq.return_value = mock_eq
+        mock_table.delete.return_value = mock_delete
+        mock_supabase_client.table.return_value = mock_table
+
+        with pytest.raises(Exception, match="Database error"):
+            repository.delete("test-id")

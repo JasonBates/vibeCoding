@@ -86,9 +86,7 @@ class TestOpenAIIntegration:
 
         # Check that poem was generated
         poem_blocks = [
-            block
-            for block in output.strip().split("\n\n")
-            if block and not block.startswith("Generated poem:")
+            block for block in output.strip().split("\n\n") if block and not block.startswith("Generated poem:")
         ]
         assert len(poem_blocks) >= 1, f"Expected poem paragraphs, got: {poem_blocks}"
 

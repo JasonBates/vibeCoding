@@ -20,9 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class TestCLI:
     """Test cases for CLI functionality."""
 
-    def test_main_with_valid_api_key(
-        self, mock_env_vars, mock_openai_client, mock_api_response
-    ):
+    def test_main_with_valid_api_key(self, mock_env_vars, mock_openai_client, mock_api_response):
         """Test main function with valid API key."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.chat.completions.create.return_value = mock_api_response
@@ -48,9 +46,7 @@ class TestCLI:
             assert "Generated poem:" in output
             assert "Silent mind explored" in output
 
-    def test_main_with_default_subject(
-        self, mock_env_vars, mock_openai_client, mock_api_response
-    ):
+    def test_main_with_default_subject(self, mock_env_vars, mock_openai_client, mock_api_response):
         """Test main function with empty input (default subject)."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.chat.completions.create.return_value = mock_api_response
@@ -66,18 +62,13 @@ class TestCLI:
 
     def test_main_without_api_key(self):
         """Test main function without API key returns error code."""
-        error_message = (
-            "OPENAI_API_KEY not set; add it to .env or export it before running "
-            "this script."
-        )
+        error_message = "OPENAI_API_KEY not set; add it to .env or export it before running " "this script."
 
         with patch(
             "haiku_service.get_client",
             side_effect=MissingAPIKeyError(error_message),
         ):
-            with patch(
-                "builtins.input", return_value="test"
-            ):  # Mock input to avoid stdin issues
+            with patch("builtins.input", return_value="test"):  # Mock input to avoid stdin issues
                 with redirect_stdout(StringIO()) as captured_output:
                     result = main()
                     assert result == 1
@@ -85,9 +76,7 @@ class TestCLI:
                     assert "Error:" in output
                     assert "OPENAI_API_KEY" in output
 
-    def test_prompt_formatting(
-        self, mock_env_vars, mock_openai_client, mock_api_response
-    ):
+    def test_prompt_formatting(self, mock_env_vars, mock_openai_client, mock_api_response):
         """Test that prompt is formatted correctly."""
         with patch("haiku_service.get_client", return_value=mock_openai_client):
             mock_openai_client.chat.completions.create.return_value = mock_api_response
