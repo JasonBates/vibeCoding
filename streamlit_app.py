@@ -420,8 +420,8 @@ def main() -> None:
             """
             <div class="hero-text">
                 <h1>LLM Poem Generator</h1>
-                <p>Summon lyrical two-paragraph verses tailored to your chosen subject.</p>  # noqa: E501
-                <p>Type a subject, press Enter, and enjoy a vivid pair of paragraphs in seconds.</p>  # noqa: E501
+                <p>Summon lyrical two-paragraph verses tailored to your chosen subject.</p>
+                <p>Type a subject, press Enter, and enjoy a vivid pair of paragraphs in seconds.</p>
             </div>
             """,
             unsafe_allow_html=True,
