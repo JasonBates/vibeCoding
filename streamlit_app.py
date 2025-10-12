@@ -1,4 +1,7 @@
-"""Streamlit UI for generating poems with the OpenAI Chat Completions API."""
+"""Streamlit UI for generating poems with the OpenAI Chat Completions API.
+
+Test deployment: Checking if Vercel auto-deployments have stopped.
+"""
 from __future__ import annotations
 
 import html
