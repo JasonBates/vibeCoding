@@ -219,37 +219,6 @@ def main() -> None:
             line-height: 1.4;
         }
 
-        .delete-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .delete-modal-card {
-            width: min(420px, 90vw);
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 18px;
-            padding: 1.8rem;
-            box-shadow: 0 30px 45px rgba(15, 23, 42, 0.26);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            backdrop-filter: blur(12px);
-        }
-
-        .delete-modal-card h4 {
-            margin-top: 0;
-            margin-bottom: 0.75rem;
-            font-size: 1.25rem;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .delete-modal-buttons {
-            margin-top: 1.5rem;
-        }
 
         .hero-text {
             text-align: center;
@@ -401,67 +370,47 @@ def main() -> None:
             st.markdown("*Storage not available*")
             st.markdown("Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file " "to enable poem storage.")
 
-    modal_placeholder = st.empty()
+    # Define the delete confirmation dialog function
+    @st.dialog("Delete Haiku", dismissible=False)
+    def delete_confirmation_dialog(target):
+        subject = target.get("subject", "")
+        st.markdown(f"Are you sure you want to delete **{html.escape(subject)}**?")
+        st.markdown("This action permanently removes the poem from your library.")
 
+        haiku_lines = target.get("haiku_text", "").splitlines()
+        preview_text = "\n".join(haiku_lines[:3])
+        if len(haiku_lines) > 3:
+            preview_text += "\n..."
+
+        st.text_area("Preview:", value=preview_text, height=100, disabled=True)
+
+        error_text = st.session_state.get("delete_error_message")
+        if error_text:
+            st.error(error_text)
+
+        col1, col2 = st.columns(2)
+        if col1.button("Cancel", key="cancel_delete", type="secondary"):
+            st.session_state.pop("show_delete_modal", None)
+            st.session_state.pop("delete_target", None)
+            st.session_state.pop("delete_error_message", None)
+            st.rerun()
+
+        if col2.button("Delete", key="confirm_delete", type="primary"):
+            if storage_service.delete_haiku(target["id"]):
+                st.session_state["delete_success_message"] = f'Removed "{subject}" from your library.'
+                st.session_state.pop("delete_target", None)
+                st.session_state.pop("delete_error_message", None)
+                st.session_state.pop("show_delete_modal", None)
+                st.rerun()
+            else:
+                st.session_state["delete_error_message"] = "Couldn't delete the haiku. Please try again."
+                st.rerun()
+
+    # Handle delete confirmation modal
     if storage_available and st.session_state.get("show_delete_modal"):
         target = st.session_state.get("delete_target")
         if target:
-            with modal_placeholder.container():
-                st.markdown(
-                    "<div class='delete-modal-overlay'><div class='delete-modal-card'>",
-                    unsafe_allow_html=True,
-                )
-
-                subject = target.get("subject", "")
-                subject_html = html.escape(subject)
-                st.markdown(
-                    f"<h4>Delete &ldquo;{subject_html}&rdquo;?</h4>",
-                    unsafe_allow_html=True,
-                )
-                st.markdown("This action permanently removes the poem.", unsafe_allow_html=True)
-
-                haiku_lines = target.get("haiku_text", "").splitlines()
-                preview_html = "<br>".join(html.escape(line) for line in haiku_lines)
-                if preview_html:
-                    st.markdown(
-                        f"<div class='delete-haiku-preview'>{preview_html}</div>",
-                        unsafe_allow_html=True,
-                    )
-
-                error_text = st.session_state.get("delete_error_message")
-                if error_text:
-                    st.error(error_text)
-
-                st.markdown("<div class='delete-modal-buttons'>", unsafe_allow_html=True)
-                cancel_col, confirm_col = st.columns(2)
-                if cancel_col.button(
-                    "Cancel",
-                    key="cancel_delete",
-                    type="secondary",
-                    use_container_width=True,
-                ):
-                    st.session_state.pop("show_delete_modal", None)
-                    st.session_state.pop("delete_target", None)
-                    st.session_state.pop("delete_error_message", None)
-                    st.rerun()
-
-                if confirm_col.button(
-                    "Delete",
-                    key="confirm_delete",
-                    type="primary",
-                    use_container_width=True,
-                ):
-                    if storage_service.delete_haiku(target["id"]):
-                        st.session_state["delete_success_message"] = f'Removed "{subject}" from your library.'
-                        st.session_state.pop("delete_target", None)
-                        st.session_state.pop("delete_error_message", None)
-                        st.session_state.pop("show_delete_modal", None)
-                        st.rerun()
-                    else:
-                        st.session_state["delete_error_message"] = "Couldn't delete the haiku. Please try again."
-                        st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
-                st.markdown("</div></div>", unsafe_allow_html=True)
+            delete_confirmation_dialog(target)
         else:
             st.session_state.pop("show_delete_modal", None)
 
