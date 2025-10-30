@@ -24,8 +24,8 @@ Updated GitHub Actions workflows to include comprehensive testing for the new Su
   - Uploads coverage to Codecov
 
 ### 3. Integration Test Workflow (`.github/workflows/integration.yml`)
-- **Triggers**: Manual, changes to integration tests, main branch
-- **Purpose**: Full integration testing with real APIs
+- **Triggers**: Manual only (`workflow_dispatch`)
+- **Purpose**: Run integration tests on demand for special scenarios
 - **Features**:
   - Tests with real OpenAI API (if credentials available)
   - Tests with real Supabase database (if credentials available)
@@ -131,13 +131,25 @@ Add these to GitHub repository secrets:
 
 ### Execution Order
 1. **Pre-commit** runs first on every push/PR
-2. **Main Test** runs after pre-commit passes
-3. **Integration** runs manually or on specific triggers
+2. **Main Test** runs after pre-commit passes (single execution per PR)
+3. **Integration** runs manually when needed
 
 ### Failure Handling
 - Pre-commit failures block commits
 - Test failures provide detailed error messages
 - Integration test failures don't block main workflow
+
+## 🧭 Concurrency Control
+
+To prevent duplicate test suite runs and database race conditions, both test workflows use a shared concurrency group:
+
+```yaml
+concurrency:
+  group: test-suite-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+This ensures only one workflow per branch/PR runs at a time. Any new run cancels an in-progress one.
 
 ## 📈 Benefits
 

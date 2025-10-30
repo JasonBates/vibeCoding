@@ -2,7 +2,7 @@
 
 ## 🎯 Feature Summary
 
-This branch adds persistent haiku storage using Supabase, implementing a complete sidebar history feature with search functionality. The implementation follows modern Python architecture patterns with comprehensive testing.
+This branch adds persistent haiku storage using Supabase, implements a complete sidebar history feature with search functionality, and introduces Streamlit caching with proper cache invalidation. It also optimizes CI workflows to ensure a single test suite run per PR.
 
 ## 📋 Changes Overview
 
@@ -115,6 +115,8 @@ CREATE TABLE haikus (
 
 ### UI Performance
 - **Efficient Rendering**: Only necessary components re-render
+- **Query Caching**: 60s TTL query cache via `@st.cache_data`
+- **Cache Invalidation**: Manual clearing on save/delete and refresh button
 - **Search Optimization**: Real-time search with debouncing
 - **Memory Management**: Proper cleanup of resources
 
@@ -175,11 +177,11 @@ This branch is ready for merge with:
 
 ## 📝 Post-Merge Tasks
 
-1. Update main branch documentation
+1. Update documentation (README, ARCHITECTURE, CI workflows) — ✅ Completed
 2. Deploy to production (if applicable)
-3. Monitor database usage
+3. Monitor database usage and cache hit rates
 4. Gather user feedback
-5. Plan future enhancements
+5. Plan future enhancements (auth, user-specific libraries)
 
 ---
 
