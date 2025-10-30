@@ -174,15 +174,27 @@ class TestSupabaseIntegration:
         initial_count = storage_service.get_total_count()
 
         # Save a test haiku using helper method
-        self._create_test_haiku(storage_service, test_haiku_ids, "-count", "Count test haiku")
+        saved_haiku = self._create_test_haiku(storage_service, test_haiku_ids, "-count", "Count test haiku")
+
+        # Verify the haiku was actually created
+        assert saved_haiku is not None, "Failed to create test haiku"
+        assert saved_haiku.id is not None, "Created haiku has no ID"
+
+        # Verify we can retrieve it by ID (proves it exists in DB)
+        retrieved_haiku = storage_service.get_haiku_by_id(saved_haiku.id)
+        assert retrieved_haiku is not None, "Created haiku not found in database"
+        assert retrieved_haiku.id == saved_haiku.id, "Retrieved haiku ID mismatch"
 
         # Get count after adding haiku
         new_count = storage_service.get_total_count()
 
         # Count should have increased by at least 1
-        # (Other tests may also be creating haikus concurrently)
+        # (Other tests may also be creating/deleting haikus concurrently,
+        # but our haiku should exist, so count should be >= initial + 1)
         assert new_count >= initial_count + 1, (
-            f"Expected count to increase by at least 1, " f"but got {new_count} (was {initial_count})"
+            f"Expected count to increase by at least 1, "
+            f"but got {new_count} (was {initial_count}). "
+            f"Created haiku ID: {saved_haiku.id}"
         )
 
     def test_save_haiku_with_user_id(self, storage_service, test_haiku_ids):
