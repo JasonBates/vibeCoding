@@ -5,6 +5,12 @@ on:
     branches: [ main ]
   workflow_dispatch:  # Manual trigger
 
+# Prevent multiple test runs from interfering with each other
+# Use same concurrency group as integration.yml to prevent simultaneous Supabase DB access
+concurrency:
+  group: test-suite-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest

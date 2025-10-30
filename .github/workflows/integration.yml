@@ -4,10 +4,15 @@ name: Integration Tests
 # It's separate from the main test workflow to avoid running expensive tests on every push
 
 on:
-  pull_request:
-    branches: [ main ]
-    paths: [ 'tests/integration/**' ]  # Only when integration tests change
-  workflow_dispatch:  # Manual trigger
+  # Removed pull_request trigger - test.yml already runs all tests including integration tests
+  # This workflow is now only for manual execution via workflow_dispatch
+  workflow_dispatch:  # Manual trigger only
+
+# Prevent multiple test runs from interfering with each other
+# Use same concurrency group as test.yml to prevent simultaneous Supabase DB access
+concurrency:
+  group: test-suite-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   integration-tests:

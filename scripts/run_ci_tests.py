@@ -152,36 +152,35 @@ def main():
     else:
         print("⚠️  Skipping OpenAI Integration Tests (no valid API key)")
 
+    supabase_missing = False
     if creds["supabase"]:
         print("✅ Including Supabase Integration Tests")
         test_cmd.append("tests/integration/test_supabase_integration.py")
     else:
-        print("❌ Supabase Integration Tests - FAILED (no valid credentials)")
+        print("⚠️  Skipping Supabase Integration Tests (no valid credentials)")
         print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
-        all_passed = False
+        supabase_missing = True
 
     # Run all tests once with coverage
-    if all_passed:
-        if not run_command(test_cmd, "All Tests with Coverage"):
-            all_passed = False
-    else:
-        print("❌ Skipping test run due to missing Supabase credentials")
+    if not run_command(test_cmd, "All Tests with Coverage"):
+        all_passed = False
 
     # Check Supabase credentials and provide helpful error message
-    if not creds["supabase"]:
-        print("❌ Supabase integration tests require valid credentials")
+    if supabase_missing:
+        print("\n⚠️  Supabase integration tests were skipped")
         print("   Set SUPABASE_URL and SUPABASE_KEY environment variables")
         print("   In GitHub Actions, add these as repository secrets")
         print("   In local development, add them to .env file")
 
-        # In CI, we should fail. In local dev, we might want to be more lenient
+        # In CI, we should fail if Supabase is missing. In local dev, allow passing
         if os.getenv("GITHUB_ACTIONS"):
             print("   This is running in GitHub Actions - failing build")
             all_passed = False
         else:
-            print("   This is local development - you can continue without Supabase")
-            print("   But integration tests will be skipped")
-            all_passed = False  # Still fail to encourage proper setup
+            print("   This is local development - unit tests can pass without Supabase")
+            print("   Integration tests will be skipped until credentials are added")
+            # Don't fail locally just because Supabase is missing
+            # (all_passed already reflects actual test results above)
 
     # Final result
     print("\n🎯 Test Results Summary")
