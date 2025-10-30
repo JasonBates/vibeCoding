@@ -42,7 +42,14 @@ def build_prompt(subject: str) -> str:
 
 
 def generate_haiku(client: OpenAI, subject: str) -> str:
-    """Request a two-paragraph poem for the subject using the provided client."""
+    """Request a two-paragraph poem for the subject using the provided client.
+
+    Returns:
+        Generated poem text, or empty string if API returns no content
+
+    Raises:
+        RuntimeError: If API response is invalid or empty
+    """
     prompt = build_prompt(subject)
     response = client.chat.completions.create(
         model=MODEL_NAME,
@@ -50,4 +57,7 @@ def generate_haiku(client: OpenAI, subject: str) -> str:
         max_tokens=150,
         temperature=0.7,
     )
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+    if not content or not content.strip():
+        raise RuntimeError("OpenAI API returned empty content. " "Please try again with a different subject.")
+    return content

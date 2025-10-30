@@ -7,6 +7,7 @@ from __future__ import annotations
 import html
 import os
 from datetime import datetime, timezone
+from typing import List
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -40,8 +41,37 @@ def get_storage_service() -> HaikuStorageService | None:
 
     try:
         return HaikuStorageService(supabase_url, supabase_key)
-    except Exception:
+    except Exception as e:
+        # Log error for debugging but don't fail silently
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error("Failed to create storage service: %s", e)
         return None
+
+
+@st.cache_data(ttl=60)
+def get_cached_recent_haikus(_storage_service: HaikuStorageService, limit: int) -> List[Haiku]:
+    """Get recent haikus with caching.
+
+    Cache is cleared automatically when haikus are saved/deleted via
+    st.cache_data.clear() calls in the main function.
+
+    Note: _storage_service is prefixed with _ to tell Streamlit not to hash it.
+    """
+    return _storage_service.get_recent_haikus(limit=limit)
+
+
+@st.cache_data(ttl=60)
+def get_cached_search_haikus(_storage_service: HaikuStorageService, search_query: str, limit: int) -> List[Haiku]:
+    """Search haikus with caching.
+
+    Cache is cleared automatically when haikus are saved/deleted via
+    st.cache_data.clear() calls in the main function.
+
+    Note: _storage_service is prefixed with _ to tell Streamlit not to hash it.
+    """
+    return _storage_service.search_haikus(search_query, limit=limit)
 
 
 def format_relative_time(dt: datetime) -> str:
@@ -78,7 +108,7 @@ def render_haiku_card(haiku: Haiku, *, enable_delete: bool = False) -> None:
                     {subject_text}
                 </div>
                 <div class="haiku-timestamp">
-                    {format_relative_time(haiku.created_at)}
+                    {format_relative_time(haiku.created_at) if haiku.created_at else "Unknown time"}
                 </div>
                 <div class="haiku-text">
                     {haiku_html}
@@ -332,7 +362,18 @@ def main() -> None:
 
     # Initialize storage service
     storage_service = get_storage_service()
-    storage_available = bool(storage_service and storage_service.is_available())
+    storage_available = False
+    storage_error = None
+
+    if storage_service:
+        try:
+            storage_available = storage_service.is_available()
+        except Exception as e:
+            storage_error = str(e)
+            storage_available = False
+    elif os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_KEY"):
+        # Credentials are set but service creation failed
+        storage_error = "Failed to initialize storage service"
 
     # Create sidebar for haiku history
     with st.sidebar:
@@ -342,7 +383,7 @@ def main() -> None:
         if success_message:
             st.success(success_message)
 
-        if storage_available:
+        if storage_available and storage_service:
             # Add refresh button and search
             st.markdown("**Search by subject**")
             col1, col2 = st.columns([3, 1])
@@ -355,13 +396,16 @@ def main() -> None:
                 )
             with col2:
                 if st.button("🔄", help="Refresh haiku list", key="refresh_button"):
+                    # Clear cache and refresh
+                    st.cache_data.clear()
                     st.rerun()
 
-            # Get haikus based on search
+            # Get haikus based on search (with caching)
+            # storage_service is guaranteed to exist here due to check above
             if search_query:
-                haikus = storage_service.search_haikus(search_query, limit=20)
+                haikus = get_cached_search_haikus(storage_service, search_query, limit=20)
             else:
-                haikus = storage_service.get_recent_haikus(limit=10)
+                haikus = get_cached_recent_haikus(storage_service, limit=10)
 
             if haikus:
                 st.markdown(f"**{len(haikus)} poem{'s' if len(haikus) != 1 else ''} found**")
@@ -371,7 +415,22 @@ def main() -> None:
                 st.markdown("*No poems found*")
         else:
             st.markdown("*Storage not available*")
-            st.markdown("Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file " "to enable poem storage.")
+            if storage_error:
+                with st.expander("🔍 Connection Error Details", expanded=False):
+                    st.error(f"**Error:** {storage_error}")
+                    st.info(
+                        "**Troubleshooting:**\n"
+                        "- Check that your SUPABASE_URL is correct\n"
+                        "- Verify your SUPABASE_KEY is the anon/public key\n"
+                        "- Ensure your network connection is working\n"
+                        "- Check if your Supabase project is active"
+                    )
+            elif not os.getenv("SUPABASE_URL") or not os.getenv("SUPABASE_KEY"):
+                st.markdown("Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file " "to enable poem storage.")
+            else:
+                st.markdown(
+                    "Storage service initialized but connection test failed. " "Check your Supabase credentials."
+                )
 
     # Define the delete confirmation dialog function
     @st.dialog("Delete Haiku", dismissible=False)
@@ -399,11 +458,13 @@ def main() -> None:
             st.rerun()
 
         if col2.button("Delete", key="confirm_delete", type="primary"):
-            if storage_service.delete_haiku(target["id"]):
+            if storage_service and storage_service.delete_haiku(target["id"]):
                 st.session_state["delete_success_message"] = f'Removed "{subject}" from your library.'
                 st.session_state.pop("delete_target", None)
                 st.session_state.pop("delete_error_message", None)
                 st.session_state.pop("show_delete_modal", None)
+                # Clear cache to refresh sidebar
+                st.cache_data.clear()
                 st.rerun()
             else:
                 st.session_state["delete_error_message"] = "Couldn't delete the haiku. Please try again."
@@ -473,6 +534,12 @@ def main() -> None:
                 st.warning("Please enter a subject for the poem.")
                 return
 
+            # Validate subject length
+            MAX_SUBJECT_LENGTH = 200
+            if len(subject) > MAX_SUBJECT_LENGTH:
+                st.error(f"Subject is too long. Please keep it under " f"{MAX_SUBJECT_LENGTH} characters.")
+                return
+
             client = get_client()
             with st.spinner("Weaving a pair of poetic paragraphs..."):
                 try:
@@ -488,18 +555,12 @@ def main() -> None:
                 saved_haiku = storage_service.save_haiku(subject, poem)
                 if saved_haiku:
                     st.success("✨ Poem saved to history!")
-                    # Store success message in session state to persist across reruns
-                    st.session_state["save_success"] = True
+                    # Clear cache to show new poem in sidebar
+                    st.cache_data.clear()
                     # Refresh to show the new poem in sidebar
                     st.rerun()
                 else:
                     st.warning("⚠️ Generated poem but couldn't save to history")
-
-        # Show persistent success message if the poem was just saved
-        if st.session_state.get("save_success", False):
-            st.success("✨ Poem saved to history!")
-            # Clear the flag so message doesn't persist forever
-            st.session_state["save_success"] = False
 
         poem_to_show = st.session_state.get("generated_poem")
         if poem_to_show:
