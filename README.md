@@ -119,6 +119,13 @@ Then open your browser to `http://localhost:8501` and enjoy the modern interface
 - **🎨 Glassmorphism Design** - Consistent modern UI throughout
 - **⚡ Real-time Updates** - Sidebar updates immediately after generation
 
+### ⚡ Caching Behavior
+
+The app caches sidebar queries for 60 seconds to reduce database load:
+- Results are reused within 60s for faster loads
+- Cache is automatically cleared when you save or delete a poem
+- You can also click the refresh button in the sidebar to force a reload
+
 ### 💻 Command Line Interface
 
 For a quick command-line experience:
@@ -214,44 +221,41 @@ This project demonstrates modern Python architecture patterns. For detailed arch
 
 ## 🧪 Testing
 
-This project includes comprehensive testing examples to learn about:
+This project includes a unified test runner and a comprehensive test suite.
 
 ### Test Types
 
 - **Unit Tests**: Mock external dependencies for fast, isolated testing
-- **Integration Tests**: Test real Supabase database operations
+- **Integration Tests**: Test real Supabase database operations (optional)
 - **End-to-End Tests**: Complete workflow tests from UI to database
 - **Repository Tests**: Test data access layer with mocked Supabase client
 - **Service Tests**: Test business logic with mocked dependencies
 
 ### Running Tests
 
-#### Quick Start (Unit Tests Only)
+#### Quick Start (recommended)
 ```bash
-# Run fast unit tests (recommended for development)
-python run_tests.py unit
+# Always activate the virtual environment first
+source .venv/bin/activate
 
-# Run with coverage
-python run_tests.py unit --coverage
+# Run the unified CI test suite locally
+python3 scripts/run_ci_tests.py
 ```
 
-#### Database Integration Tests
+The CI runner automatically:
+- Detects available credentials
+- Runs unit tests always
+- Runs OpenAI/Supabase integration tests only when credentials are present
+- Generates coverage reports (`coverage.xml`, `htmlcov/`)
+
+#### Run specific tests with pytest
 ```bash
-# Run tests with Supabase integration
-python scripts/run_tests_with_db.py
+# Unit tests
+pytest tests/test_repository.py -v
+pytest tests/test_haiku_storage_service.py -v
 
-# Or run specific test categories
-python -m pytest tests/test_repository.py -v
-python -m pytest tests/integration/test_supabase_integration.py -v
-```
-
-#### All Tests
-```bash
-# Run everything (requires API keys)
-python scripts/run_tests.py all
-
-# Or use the CI test runner (recommended)
-python scripts/run_ci_tests.py
+# Integration tests (require SUPABASE_URL and SUPABASE_KEY)
+pytest tests/integration/test_supabase_integration.py -v
 ```
 
 ### Test Structure
@@ -274,8 +278,9 @@ tests/
 
 ### GitHub Actions
 
-- **Unit Tests**: Run automatically on every push
-- **Integration Tests**: Run manually or when integration files change
+- **Test Suite**: Runs once per PR on `main` (full suite via `run_ci_tests.py`)
+- **Integration Workflow**: Manual-only workflow for special scenarios
+- **Concurrency**: Configured to prevent simultaneous runs that could race on the DB
 - **Coverage**: Uploaded to Codecov for tracking
 
 ### Test Markers

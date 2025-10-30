@@ -76,12 +76,9 @@ Tests are marked with pytest markers for easy filtering:
 
 ## 🔧 GitHub Actions
 
-Integration tests run on GitHub Actions when:
-- Manually triggered (`workflow_dispatch`)
-- Integration test files are changed
-- Pull requests modify integration tests
+Integration tests are available via a manual workflow (`workflow_dispatch`). The main test workflow already runs the full suite using a unified runner; use the manual integration workflow only when you specifically need to validate integrations independently.
 
-**Note:** Integration tests only run if `OPENAI_API_KEY` secret is available in the repository.
+**Note:** Integration tests only run if the appropriate secrets are available (e.g., `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`).
 
 ## 💡 Best Practices
 

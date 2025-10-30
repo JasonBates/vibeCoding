@@ -10,8 +10,8 @@ This directory contains comprehensive documentation for the VibeCoding Haiku Gen
 - **[Branch Review](BRANCH_REVIEW.md)** - Complete feature review and merge readiness assessment
 
 ### Development & CI/CD
-- **[GitHub Actions Update](GITHUB_ACTIONS_UPDATE.md)** - GitHub Actions workflow configuration and testing setup
-- **[Integration Tests](../tests/integration/README.md)** - Integration testing documentation
+- **[GitHub Actions Update](GITHUB_ACTIONS_UPDATE.md)** - Workflow configuration, concurrency control, and unified test runner
+- **[Integration Tests](../tests/integration/README.md)** - Integration testing documentation (manual workflow)
 
 ## 🏗️ Architecture Overview
 
@@ -25,9 +25,10 @@ The project follows modern Python architecture patterns:
 ## 🧪 Testing Strategy
 
 - **Unit Tests** - Fast, isolated component testing
-- **Integration Tests** - Real API and database testing
+- **Integration Tests** - Real API and database testing (manual workflow in CI)
+- **Unified Test Runner** - `scripts/run_ci_tests.py` handles both locally and in CI
 - **Pre-commit Hooks** - Code quality enforcement
-- **CI/CD Pipeline** - Automated testing and deployment
+- **CI/CD Pipeline** - Automated testing and deployment with concurrency control
 
 ## 🚀 Quick Links
 
